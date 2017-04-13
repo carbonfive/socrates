@@ -91,7 +91,7 @@ module Socrates
           return
         end
 
-        transition_to :calculate_age, data: { birth_date: birth_date.strftime('%y/%m/%d') }
+        transition_to :calculate_age, data: { birth_date: birth_date }
       end
 
       def first_name
@@ -103,7 +103,7 @@ module Socrates
       include Socrates::Core::State
 
       def say
-        birth_date = Date.parse(@data.get(:birth_date))
+        birth_date = @data.get(:birth_date)
         age        = calculated_age(birth_date)
 
         respond message: "Got it #{first_name}! So that makes you #{age} years old."
