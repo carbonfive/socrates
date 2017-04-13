@@ -92,7 +92,7 @@ RSpec.describe Socrates::Core::StateData do
   end
 
   describe "serialization" do
-    it "serializes to json and back" do
+    it "serializes to yaml and back" do
       string   = data.serialize
       new_data = described_class.deserialize(string)
 
