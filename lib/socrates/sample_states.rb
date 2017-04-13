@@ -9,11 +9,11 @@ module Socrates
         :get_started
       end
 
-      def build(state_data:, chatbot_client:, context: nil)
+      def build(state_data:, adapter:, context: nil)
         classname = StringHelpers.underscore_to_classname(state_data.state_id)
 
         Object::const_get("Socrates::SampleStates::#{classname}")
-          .new(data: state_data, chatbot_client: chatbot_client, context: context)
+          .new(data: state_data, adapter: adapter, context: context)
       end
     end
 

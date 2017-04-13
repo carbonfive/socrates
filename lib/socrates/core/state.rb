@@ -6,9 +6,9 @@ module Socrates
     module State
       attr_reader :data, :context
 
-      def initialize(data: StateData.new, chatbot_client:, context: nil)
+      def initialize(data: StateData.new, adapter:, context: nil)
         @data              = data
-        @chatbot_client    = chatbot_client
+        @adapter           = adapter
         @context           = context
         @next_state_id     = UNSET_VALUE
         @next_state_action = UNSET_VALUE
@@ -39,7 +39,7 @@ module Socrates
         end
 
         if message
-          @chatbot_client.send_message(message, @context) # TODO named params.
+          @adapter.send_message(message, @context) # TODO named params.
         end
       end
 

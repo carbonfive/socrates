@@ -3,20 +3,6 @@ require 'slack-ruby-client'
 module Socrates
   module Bots
     class SlackBot
-      class SlackClient
-        def initialize(slack_real_time_client)
-          @slack_real_time_client = slack_real_time_client
-        end
-
-        def client_id_from_context(context)
-          context.user
-        end
-
-        def send_message(message, context)
-          @slack_real_time_client.message text: message, channel: context.channel
-        end
-      end
-
       def initialize(state_factory:)
         Slack.configure do |config|
           config.token        = ENV['SLACK_API_TOKEN']
@@ -26,10 +12,10 @@ module Socrates
           fail "Missing ENV[SLACK_API_TOKEN]!" unless config.token
         end
 
-        @slack_client   = Slack::RealTime::Client.new
-        @chatbot_client = SlackClient.new(@slack_client)
-        @storage        = Storage::RedisStorage.new
-        @dispatcher     = Core::Dispatcher.new(storage: @storage, chatbot_client: @chatbot_client, state_factory: state_factory)
+        @slack_client = Slack::RealTime::Client.new
+        @adapter      = SlackAdapter.new(@slack_client)
+        @storage      = Storage::RedisStorage.new
+        @dispatcher   = Core::Dispatcher.new(storage: @storage, adapter: @adapter, state_factory: state_factory)
       end
 
       def start

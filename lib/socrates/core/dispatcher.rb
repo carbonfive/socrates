@@ -7,17 +7,17 @@ require 'socrates/core/state_data'
 module Socrates
   module Core
     class Dispatcher
-      def initialize(chatbot_client:, state_factory:, storage: nil)
-        @chatbot_client = chatbot_client
-        @state_factory  = state_factory
-        @storage        = storage || Storage::MemoryStorage.new
+      def initialize(adapter:, state_factory:, storage: nil)
+        @adapter       = adapter
+        @state_factory = state_factory
+        @storage       = storage || Storage::MemoryStorage.new
 
         @logger        = Socrates::Config.logger || Socrates::Logger.default
         @error_message = Socrates::Config.error_message || DEFAULT_ERROR_MESSAGE
       end
 
       def dispatch(message:, context: {})
-        client_id = @chatbot_client.client_id_from_context(context)
+        client_id = @adapter.client_id_from_context(context)
 
         message = message.strip
 
@@ -38,7 +38,7 @@ module Socrates
             @logger.warn "Error raise while processing action #{state.data.state_id} : #{state.data.state_action}: #{e.message}"
             @logger.warn e
 
-            @chatbot_client.send_message(@error_message, context)
+            @adapter.send_message(@error_message, context)
             state.data.clear
             state.data.state_id     = nil
             state.data.state_action = nil
@@ -69,7 +69,7 @@ module Socrates
             rescue
               @logger.warn "Error raise while fetching snapshot for client id '#{client_id}', resetting state: #{e.message}"
               @logger.warn e
-              
+
               StateData.new
             end
           else
@@ -91,7 +91,7 @@ module Socrates
       end
 
       def instantiate_state(state_data, context)
-        @state_factory.build(state_data: state_data, chatbot_client: @chatbot_client, context: context)
+        @state_factory.build(state_data: state_data, adapter: @adapter, context: context)
       end
     end
   end
