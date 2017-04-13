@@ -86,7 +86,7 @@ module Socrates
           birth_date = Date.strptime(message, '%m/%d/%Y')
 
         rescue ArgumentError
-          respond message: "Whoops, I didn't get that. Can you try again? What's your birth date (e.g. MM/DD/YYYY)?"
+          respond message: "Whoops, I didn't understand that. What's your birth date (e.g. MM/DD/YYYY)?"
           repeat_action
           return
         end
