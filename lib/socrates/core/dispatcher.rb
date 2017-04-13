@@ -35,7 +35,7 @@ module Socrates
           begin
             state.send(*args)
           rescue => e
-            @logger.warn "Error raise while processing action #{state.data.state_id} : #{state.data.state_action}: #{e.message}"
+            @logger.warn "Error raised while processing action #{state.data.state_id}/#{state.data.state_action}: #{e.message}"
             @logger.warn e
 
             @adapter.send_message(@error_message, context)
@@ -66,8 +66,8 @@ module Socrates
             begin
               snapshot = @storage.get(client_id)
               StateData.deserialize(snapshot)
-            rescue
-              @logger.warn "Error raise while fetching snapshot for client id '#{client_id}', resetting state: #{e.message}"
+            rescue => e
+              @logger.warn "Error raised while fetching snapshot for client id '#{client_id}', resetting state: #{e.message}"
               @logger.warn e
 
               StateData.new
