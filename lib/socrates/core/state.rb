@@ -1,5 +1,5 @@
-require 'hashie'
-require 'erb'
+require "hashie"
+require "erb"
 
 module Socrates
   module Core
@@ -32,15 +32,13 @@ module Socrates
 
       def respond(message: nil, template: nil)
         if template
-          # TODO Partials?
+          # TODO: Partials?
           filename = File.join(Socrates.config.view_path, template)
           source   = File.read(filename)
-          message  = ERB.new(source, 0, '<>').result(binding)
+          message  = ERB.new(source, 0, "<>").result(binding)
         end
 
-        if message
-          @adapter.send_message(message, @context) # TODO named params.
-        end
+        @adapter.send_message(message, @context) if message
       end
 
       def transition_to(state_id, action: nil, data: {})
@@ -82,14 +80,14 @@ module Socrates
 
       private
 
-      UNSET_VALUE = :noop # TODO Flip this and use it to indicate END OF CONVERSAION?
+      UNSET_VALUE = :noop # TODO: Flip this and use it to indicate END OF CONVERSAION?
 
       def next_action(current_action)
-        (%i{say listen} - [current_action]).first
+        (%i[say listen] - [current_action]).first
       end
 
       def state_id_from_classname
-        StringHelpers.classname_to_underscore(self.class.to_s.split('::').last).to_sym
+        StringHelpers.classname_to_underscore(self.class.to_s.split("::").last).to_sym
       end
     end
   end

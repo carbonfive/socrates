@@ -1,5 +1,5 @@
-require 'redis'
-require 'json'
+require "redis"
+require "json"
 
 module Socrates
   module Storage
@@ -26,7 +26,7 @@ module Socrates
     end
 
     class RedisStorage
-      def initialize(url: 'redis://localhost')
+      def initialize(url: "redis://localhost")
         @redis = Redis.new(url: url)
       end
 

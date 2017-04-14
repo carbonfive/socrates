@@ -1,6 +1,6 @@
-require 'date'
+require "date"
 
-require 'socrates/core/state'
+require "socrates/core/state"
 
 module Socrates
   module SampleStates
@@ -12,7 +12,7 @@ module Socrates
       def build(state_data:, adapter:, context: nil)
         classname = StringHelpers.underscore_to_classname(state_data.state_id)
 
-        Object::const_get("Socrates::SampleStates::#{classname}")
+        Object.const_get("Socrates::SampleStates::#{classname}")
           .new(data: state_data, adapter: adapter, context: context)
       end
     end
@@ -22,11 +22,11 @@ module Socrates
 
       def listen(message)
         case message.strip
-          when 'help'
+          when "help"
             transition_to :help
-          when 'age'
+          when "age"
             transition_to :ask_for_name
-          when 'error'
+          when "error"
             transition_to :raise_error
           else
             transition_to :no_comprende
@@ -83,8 +83,7 @@ module Socrates
 
       def listen(message)
         begin
-          birth_date = Date.strptime(message, '%m/%d/%Y')
-
+          birth_date = Date.strptime(message, "%m/%d/%Y")
         rescue ArgumentError
           respond message: "Whoops, I didn't understand that. What's your birth date (e.g. MM/DD/YYYY)?"
           repeat_action
@@ -111,6 +110,8 @@ module Socrates
         # Example of a :say => :say transition.
         transition_to :end_conversation_1
       end
+
+      private
 
       def first_name
         @data.get(:name).split.first
@@ -150,7 +151,7 @@ module Socrates
       end
 
       def listen(_message)
-        raise ArgumentError.new
+        raise ArgumentError, "Boom!"
       end
     end
   end

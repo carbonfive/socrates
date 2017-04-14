@@ -1,15 +1,15 @@
-require 'slack-ruby-client'
+require "slack-ruby-client"
 
 module Socrates
   module Bots
     class SlackBot
       def initialize(state_factory:)
         Slack.configure do |config|
-          config.token        = ENV['SLACK_API_TOKEN']
+          config.token        = ENV["SLACK_API_TOKEN"]
           config.logger       = Logger.new(STDOUT)
           config.logger.level = Logger::INFO
 
-          fail "Missing ENV[SLACK_API_TOKEN]!" unless config.token
+          raise "Missing ENV[SLACK_API_TOKEN]!" unless config.token
         end
 
         @slack_client = Slack::RealTime::Client.new

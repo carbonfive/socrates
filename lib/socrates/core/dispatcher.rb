@@ -1,8 +1,8 @@
-require 'hashie'
+require "hashie"
 
-require 'socrates/string_helpers'
-require 'socrates/storage/storage'
-require 'socrates/core/state_data'
+require "socrates/string_helpers"
+require "socrates/storage/storage"
+require "socrates/core/state_data"
 
 module Socrates
   module Core
@@ -16,12 +16,13 @@ module Socrates
         @error_message = Socrates::Config.error_message || DEFAULT_ERROR_MESSAGE
       end
 
+      # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       def dispatch(message:, context: {})
         client_id = @adapter.client_id_from_context(context)
 
         message = message.strip
 
-        @logger.info %Q[#{client_id} received: "#{message}"]
+        @logger.info %(#{client_id} received: "#{message}")
 
         # In many cases, a single state will run in this loop, but it's possible that a chain of 2 or more :say
         # actions could run, before stopping at a listen (and waiting for the next input).
@@ -35,7 +36,7 @@ module Socrates
           begin
             state.send(*args)
           rescue => e
-            @logger.warn "Error raised while processing action #{state.data.state_id}/#{state.data.state_action}: #{e.message}"
+            @logger.warn "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{e.message}"
             @logger.warn e
 
             @adapter.send_message(@error_message, context)
@@ -52,9 +53,10 @@ module Socrates
 
           persist_snapshot(client_id, state.data)
 
-          break if state.data.state_action == :listen or state.data.state_id.nil?
+          break if state.data.state_action == :listen || state.data.state_id.nil?
         end
       end
+      # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
       private
 
@@ -67,7 +69,7 @@ module Socrates
               snapshot = @storage.get(client_id)
               StateData.deserialize(snapshot)
             rescue => e
-              @logger.warn "Error raised while fetching snapshot for client id '#{client_id}', resetting state: #{e.message}"
+              @logger.warn "Error while fetching snapshot for client id '#{client_id}', resetting state: #{e.message}"
               @logger.warn e
 
               StateData.new

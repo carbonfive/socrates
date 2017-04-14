@@ -1,7 +1,7 @@
-require 'set'
-require 'json'
-require 'yaml'
-require 'hashie'
+require "hashie"
+require "json"
+require "set"
+require "yaml"
 
 module Socrates
   module Core
@@ -24,14 +24,14 @@ module Socrates
       end
 
       def has_temporary_key?(key)
-        # The !! turns nils into false, which shouldn't be necessary, but seems to be after the set is loaded from yaml.
-        !!@temporary_keys.include?(key)
+        # The !! turns nils into false, which shouldn"t be necessary, but seems to be after the set is loaded from yaml.
+        @temporary_keys.include?(key) == true
       end
 
       def get(key, clear: false)
         value = @data[key]
 
-        if @temporary_keys.include?(key) or clear
+        if @temporary_keys.include?(key) || clear
           @temporary_keys.delete(key)
           @data.delete(key)
         end
@@ -44,8 +44,8 @@ module Socrates
       end
 
       def set_temporary(key, value)
-        if @data.has_key?(key) and !@temporary_keys.include?(key)
-          raise ArgumentError.new("Cannot overrite key '#{key}' with a temporary value.")
+        if @data.has_key?(key) && !@temporary_keys.include?(key)
+          raise ArgumentError, "Cannot overrite key '#{key}' with a temporary value."
         end
 
         @data[key] = value
