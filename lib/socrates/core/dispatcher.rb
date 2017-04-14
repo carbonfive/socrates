@@ -1,5 +1,6 @@
 require "hashie"
 
+require "socrates/logger"
 require "socrates/string_helpers"
 require "socrates/storage/storage"
 require "socrates/core/state_data"

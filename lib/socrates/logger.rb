@@ -1,6 +1,6 @@
 require "logger"
 
-module Socretes
+module Socrates
   class Logger < ::Logger
     def self.default
       @logger ||= begin
