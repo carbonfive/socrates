@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+File.expand_path("../../lib", __FILE__).tap do |lib|
+  $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+end
+
+require "socrates"
+require "socrates/sample_states"
+
+puts "Type `help` to see what I can do..."
+
+Socrates::Bots::CLIBot.new(state_factory: Socrates::SampleStates::StateFactory.new).start
