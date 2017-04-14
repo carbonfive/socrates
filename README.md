@@ -1,8 +1,118 @@
 # Socrates
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/socrates`. To experiment with that code, run `bin/console` for an interactive prompt.
+Socrates is a micro-framework for building conversational interfaces. It provides straight-forward state management, a clear pattern for modeling the states and conversational flow (tran), and some helpers.
+ 
+It's designed for building conversational Slack bots, but is designed in such a way that other adapters could be written. It ships with a Console adapter for testing locally in the terminal as well as a Memory adapter for use in automated tests.
 
-TODO: Delete this and the text above, and describe your gem
+Conversational state is captured either in memory (deveopment and testing) or in Redis. This too is pluggable so that other storage backends could be used.
+
+Conceptually, a conversation is a sequence of listening and saying actions. As a conversational progresses, information is gathered and at some point, acted upon by the system.
+
+Here is a simple example, asking for one's name, birth date, and then responding with the current age.
+
+![Calculate Age](./sample-conversation-console.gif)
+
+```ruby
+class GetStarted
+  include Socrates::Core::State
+
+  def listen(message)
+    case message.strip
+      when "help"
+        transition_to :help
+      when "age"
+        transition_to :ask_for_name
+      else
+        transition_to :no_comprende
+    end
+  end
+end
+
+class Help
+  include Socrates::Core::State
+
+  def say
+    respond message: <<~MSG
+      Thanks for asking! I can do these things for you...
+
+        • `age` - Calculate your age from your birth date.
+        • `help` - Tell you what I can do for you.
+
+      So, what shall it be?
+    MSG
+    transition_to :get_started, action: :listen
+  end
+end
+
+class NoComprende
+  include Socrates::Core::State
+
+  def say
+    respond message: "Whoops, I don't know what you mean by that. Try `help` to see my commands."
+    transition_to :get_started
+  end
+end
+
+class AskForName
+  include Socrates::Core::State
+
+  def say
+    respond message: "First things first, what's your name?"
+  end
+
+  def listen(message)
+    transition_to :ask_for_birth_date, data: { name: message }
+  end
+end
+
+class AskForBirthDate
+  include Socrates::Core::State
+
+  def say
+    respond message: "Hi #{first_name}! What's your birth date (e.g. MM/DD/YYYY)?"
+  end
+
+  def listen(message)
+    begin
+      birth_date = Date.strptime(message, "%m/%d/%Y")
+    rescue ArgumentError
+      respond message: "Whoops, I didn't understand that. What's your birth date (e.g. MM/DD/YYYY)?"
+      repeat_action
+      return
+    end
+    transition_to :calculate_age, data: { birth_date: birth_date }
+  end
+
+  private
+
+  def first_name
+    @data.get(:name).split.first
+  end
+end
+
+class CalculateAge
+  include Socrates::Core::State
+
+  def say
+    respond message: "Got it #{first_name}! So that makes you #{calculate_age} years old."
+    end_conversation
+  end
+
+  private
+
+  def first_name
+    @data.get(:name).split.first
+  end
+
+  def birth_date
+    @data.get(:birth_date)
+  end
+
+  def calculate_age
+    ((Date.today.to_time - birth_date.to_time) / 31_536_000).floor
+  end
+end
+```
 
 ## Installation
 
@@ -26,11 +136,11 @@ TODO: Write usage instructions here
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake` to run the tests and rubocop. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/socrates.
+Bug reports and pull requests are welcome on GitHub at https://github.com/christiannelson/socrates.
 
