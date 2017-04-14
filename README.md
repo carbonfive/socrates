@@ -1,6 +1,6 @@
 # Socrates
 
-Socrates is a micro-framework for building conversational interfaces. It provides straight-forward state management, a clear pattern for modeling the states and conversational flow (tran), and some helpers.
+Socrates is a micro-framework for building conversational interfaces. It provides straight-forward state management, a clear pattern for modeling the states and conversational flow (transitions), and some helpers.
  
 It's designed for building conversational Slack bots, but is designed in such a way that other adapters could be written. It ships with a Console adapter for testing locally in the terminal as well as a Memory adapter for use in automated tests.
 
