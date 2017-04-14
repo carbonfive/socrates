@@ -1,5 +1,5 @@
 class MemoryAdapter
-  CLIENT_ID = 'MEMORY'
+  CLIENT_ID = "MEMORY"
 
   attr_reader :history
 

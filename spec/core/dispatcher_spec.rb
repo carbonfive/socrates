@@ -1,8 +1,8 @@
-require 'spec_helper'
+require "spec_helper"
 
-require 'socrates/storage/storage'
-require 'socrates/core/dispatcher'
-require 'socrates/sample_states'
+require "socrates/storage/storage"
+require "socrates/core/dispatcher"
+require "socrates/sample_states"
 
 class NullLogger < Logger
   def initialize(*_args)
@@ -24,10 +24,7 @@ RSpec.describe Socrates::Core::Dispatcher do
 
   let(:adapter) { MemoryAdapter.new }
   let(:state_factory) { Socrates::SampleStates::StateFactory.new }
-
-  subject(:dispatcher) {
-    described_class.new(adapter: adapter, state_factory: state_factory)
-  }
+  subject(:dispatcher) { described_class.new(adapter: adapter, state_factory: state_factory) }
 
   context "given the set of sample states and transitions" do
     it "navigates a happy path conversation starting with the 'age' command" do

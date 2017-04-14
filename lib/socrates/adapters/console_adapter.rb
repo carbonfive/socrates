@@ -1,12 +1,12 @@
 class ConsoleAdapter
-  CLIENT_ID = 'CONSOLE'
+  CLIENT_ID = "CONSOLE"
 
   def client_id_from_context(_context)
     CLIENT_ID
   end
 
   def send_message(message, _context)
-    puts "\n#{colorize('@timesheet', '32;1')}: #{message}"
+    puts "\n#{colorize("@timesheet", "32;1")}: #{message}"
   end
 
   private

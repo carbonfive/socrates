@@ -11,7 +11,7 @@ module Socrates
         # Clear out any remnants from previous runs.
         @storage.clear(ConsoleAdapter::CLIENT_ID)
 
-        while (input = gets.chomp) do
+        while (input = gets.chomp)
           @dispatcher.dispatch(message: input)
         end
       end

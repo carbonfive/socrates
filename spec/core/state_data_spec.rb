@@ -1,12 +1,11 @@
-require 'spec_helper'
+require "spec_helper"
 
-require 'socrates/core/state_data'
+require "socrates/core/state_data"
 
-class TestWidget < Struct.new(:id, :name, :active)
-end
+TestWidget = Struct.new(:id, :name, :active)
 
 RSpec.describe Socrates::Core::StateData do
-  subject(:data) { described_class.new(data: { a: 100, b: { b1: 'abc', b2: 'xyz' } }) }
+  subject(:data) { described_class.new(data: { a: 100, b: { b1: "abc", b2: "xyz" } }) }
 
   describe "#keys" do
     it "returns an array of keys" do
@@ -23,7 +22,7 @@ RSpec.describe Socrates::Core::StateData do
 
   describe "#has_temporary_key?" do
     it "returns whether or not there's a temporary value with the key" do
-      data.set_temporary(:temp, 'tick-tock')
+      data.set_temporary(:temp, "tick-tock")
       expect(data.has_temporary_key?(:temp)).to be true
     end
 
@@ -35,7 +34,7 @@ RSpec.describe Socrates::Core::StateData do
   describe "#get" do
     it "fetches values with symbol keys" do
       expect(data.get(:a)).to eq(100)
-      expect(data.get(:b)).to eq({ b1: 'abc', b2: 'xyz' })
+      expect(data.get(:b)).to eq(b1: "abc", b2: "xyz")
     end
 
     it "clears the value when clear: true is passed" do
@@ -47,8 +46,8 @@ RSpec.describe Socrates::Core::StateData do
   describe "#set" do
     it "sets new values which are then fetchable" do
       expect(data.has_key?(:name)).to be false
-      data.set(:name, 'Christian')
-      expect(data.get(:name)).to eq('Christian')
+      data.set(:name, "Christian")
+      expect(data.get(:name)).to eq("Christian")
     end
   end
 
@@ -56,27 +55,27 @@ RSpec.describe Socrates::Core::StateData do
     it "stores the value and clears it once it has been fetched" do
       expect(data.has_key?(:name)).to be false
 
-      data.set_temporary(:name, 'Christian')
-      expect(data.get(:name)).to eq('Christian')
+      data.set_temporary(:name, "Christian")
+      expect(data.get(:name)).to eq("Christian")
 
       expect(data.has_key?(:name)).to be false
       expect(data.get(:name)).to be nil
     end
 
     it "raises an exception if a non-temporary value has already been set with this key" do
-      expect { data.set_temporary(:a, 'Christian') }.to raise_error ArgumentError
+      expect { data.set_temporary(:a, "Christian") }.to raise_error ArgumentError
     end
   end
 
   describe "#merge" do
     it "merges the specified hash into this state data" do
-      data.merge({ c: 500 })
+      data.merge(c: 500)
       expect(data.has_key?(:c)).to be true
       expect(data.get(:c)).to eq 500
     end
 
     it "replaces old values with new ones" do
-      data.merge({ a: 500 })
+      data.merge(a: 500)
       expect(data.has_key?(:a)).to be true
       expect(data.get(:a)).to eq 500
     end
@@ -105,11 +104,11 @@ RSpec.describe Socrates::Core::StateData do
 
     it "preserves temporary keys and values through serialization" do
       data.state_id = :additional_info
-      data.set_temporary(:temp, 'time is slipping')
+      data.set_temporary(:temp, "time is slipping")
       data.set(:widgets, [
-        TestWidget.new(10, 'W 1', true),
-        TestWidget.new(15, 'W 2', true),
-        TestWidget.new(20, 'W 3', false),
+        TestWidget.new(10, "W 1", true),
+        TestWidget.new(15, "W 2", true),
+        TestWidget.new(20, "W 3", false)
       ])
 
       string   = data.serialize
@@ -117,7 +116,7 @@ RSpec.describe Socrates::Core::StateData do
 
       expect(new_data.state_id).to eq :additional_info
       expect(new_data.has_temporary_key?(:temp)).to be true
-      expect(new_data.get(:temp)).to eq 'time is slipping'
+      expect(new_data.get(:temp)).to eq "time is slipping"
       expect(new_data.has_temporary_key?(:temp)).to be false
 
       expect(new_data.has_key?(:widgets)).to be true
@@ -130,7 +129,7 @@ RSpec.describe Socrates::Core::StateData do
       end
 
       expect(widgets[0].id).to eq 10
-      expect(widgets[0].name).to eq 'W 1'
+      expect(widgets[0].name).to eq "W 1"
       expect(widgets[0].active).to eq true
     end
   end
