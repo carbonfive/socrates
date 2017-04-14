@@ -102,10 +102,7 @@ module Socrates
       include Socrates::Core::State
 
       def say
-        birth_date = @data.get(:birth_date)
-        age        = calculated_age(birth_date)
-
-        respond message: "Got it #{first_name}! So that makes you #{age} years old."
+        respond message: "Got it #{first_name}! So that makes you #{calculated_age} years old."
 
         # Example of a :say => :say transition.
         transition_to :end_conversation_1
@@ -117,7 +114,11 @@ module Socrates
         @data.get(:name).split.first
       end
 
-      def calculated_age(birth_date)
+      def birth_date
+        @data.get(:birth_date)
+      end
+
+      def calculated_age
         ((Date.today.to_time - birth_date.to_time) / 31_536_000).floor
       end
     end
