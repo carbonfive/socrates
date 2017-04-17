@@ -17,7 +17,7 @@ module Socrates
         @error_message = Socrates::Config.error_message || DEFAULT_ERROR_MESSAGE
       end
 
-      # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      # rubocop:disable Metrics/AbcSize
       def dispatch(message:, context: {})
         client_id = @adapter.client_id_from_context(context)
 
@@ -37,14 +37,7 @@ module Socrates
           begin
             state.send(*args)
           rescue => e
-            @logger.warn "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{e.message}"
-            @logger.warn e
-
-            @adapter.send_message(@error_message, context)
-            state.data.clear
-            state.data.state_id     = nil
-            state.data.state_action = nil
-            persist_snapshot(client_id, state.data)
+            handle_action_error(e, client_id, state, context)
             return
           end
 
@@ -58,7 +51,7 @@ module Socrates
           break if done_transitioning?(state)
         end
       end
-      # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+      # rubocop:enable Metrics/AbcSize
 
       private
 
@@ -104,6 +97,18 @@ module Socrates
         return true if state.data.state_id.nil? || state.data.state_id == State::END_OF_CONVERSATION
 
         false
+      end
+
+      def handle_action_error(e, client_id, state, context)
+        @logger.warn "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{e.message}"
+        @logger.warn e
+
+        @adapter.send_message(@error_message, context)
+        state.data.clear
+        state.data.state_id     = nil
+        state.data.state_action = nil
+
+        persist_snapshot(client_id, state.data)
       end
     end
   end
