@@ -73,16 +73,11 @@ module Socrates
             rescue => e
               @logger.warn "Error while fetching snapshot for client id '#{client_id}', resetting state: #{e.message}"
               @logger.warn e
-
-              StateData.new
             end
-          else
-            StateData.new
           end
 
-        # If the current state is nil, set it to the default state, which is typically a state that waits for an
-        # initial command or input from the user (e.g. help, start, etc).
-        if state_data.state_id.nil?
+        state_data ||= StateData.new
+
         # If the current state is nil or END_OF_CONVERSATION, set it to the default state, which is typically a state
         # that waits for an initial command or input from the user (e.g. help, start, etc).
         if state_data.state_id.nil? || state_data.state_id == State::END_OF_CONVERSATION
