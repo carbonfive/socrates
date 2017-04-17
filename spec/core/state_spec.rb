@@ -84,8 +84,8 @@ RSpec.describe Socrates::Core::State do
     it "sets the next state and action to nil, to indicate the flow is over " do
       state.end_conversation
 
-      expect(state.next_state_id).to eq nil
-      expect(state.next_state_action).to eq nil
+      expect(state.next_state_id).to eq described_class::END_OF_CONVERSATION
+      expect(state.next_state_action).to eq described_class::END_OF_CONVERSATION
     end
 
     it "clears out the state data" do
