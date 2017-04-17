@@ -47,7 +47,7 @@ module Socrates
             if state_id.nil?
               nil
             elsif state_id == state_id_from_classname
-              next_action(@data.current_action)
+              next_action(@data.state_action)
             else
               :say
             end
