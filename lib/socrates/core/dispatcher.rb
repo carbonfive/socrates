@@ -1,5 +1,6 @@
 require "hashie"
 
+require "socrates/logger"
 require "socrates/string_helpers"
 require "socrates/storage/storage"
 require "socrates/core/state_data"
@@ -16,7 +17,7 @@ module Socrates
         @error_message = Socrates::Config.error_message || DEFAULT_ERROR_MESSAGE
       end
 
-      # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      # rubocop:disable Metrics/AbcSize
       def dispatch(message:, context: {})
         client_id = @adapter.client_id_from_context(context)
 
@@ -36,14 +37,7 @@ module Socrates
           begin
             state.send(*args)
           rescue => e
-            @logger.warn "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{e.message}"
-            @logger.warn e
-
-            @adapter.send_message(@error_message, context)
-            state.data.clear
-            state.data.state_id     = nil
-            state.data.state_action = nil
-            persist_snapshot(client_id, state.data)
+            handle_action_error(e, client_id, state, context)
             return
           end
 
@@ -53,10 +47,11 @@ module Socrates
 
           persist_snapshot(client_id, state.data)
 
-          break if state.data.state_action == :listen || state.data.state_id.nil?
+          # Break from the loop if there's nothing left to do, i.e. no more state transitions.
+          break if done_transitioning?(state)
         end
       end
-      # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+      # rubocop:enable Metrics/AbcSize
 
       private
 
@@ -71,16 +66,14 @@ module Socrates
             rescue => e
               @logger.warn "Error while fetching snapshot for client id '#{client_id}', resetting state: #{e.message}"
               @logger.warn e
-
-              StateData.new
             end
-          else
-            StateData.new
           end
 
-        # If the current state is nil, set it to the default state, which is typically a state that waits for an
-        # initial command or input from the user (e.g. help, start, etc).
-        if state_data.state_id.nil?
+        state_data ||= StateData.new
+
+        # If the current state is nil or END_OF_CONVERSATION, set it to the default state, which is typically a state
+        # that waits for an initial command or input from the user (e.g. help, start, etc).
+        if state_data.state_id.nil? || state_data.state_id == State::END_OF_CONVERSATION
           state_data.state_id     = @state_factory.default_state
           state_data.state_action = :listen
         end
@@ -94,6 +87,28 @@ module Socrates
 
       def instantiate_state(state_data, context)
         @state_factory.build(state_data: state_data, adapter: @adapter, context: context)
+      end
+
+      def done_transitioning?(state)
+        # Stop transitioning if we're waiting for the user to respond (i.e. we're listening).
+        return true if state.data.state_action == :listen
+
+        # Stop transitioning if there's no state to transition to, or the conversation has ended.
+        return true if state.data.state_id.nil? || state.data.state_id == State::END_OF_CONVERSATION
+
+        false
+      end
+
+      def handle_action_error(e, client_id, state, context)
+        @logger.warn "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{e.message}"
+        @logger.warn e
+
+        @adapter.send_message(@error_message, context)
+        state.data.clear
+        state.data.state_id     = nil
+        state.data.state_action = nil
+
+        persist_snapshot(client_id, state.data)
       end
     end
   end

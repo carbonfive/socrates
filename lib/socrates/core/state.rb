@@ -10,12 +10,12 @@ module Socrates
         @data              = data
         @adapter           = adapter
         @context           = context
-        @next_state_id     = UNSET_VALUE
-        @next_state_action = UNSET_VALUE
+        @next_state_id     = nil
+        @next_state_action = nil
       end
 
       def next_state_id
-        if @next_state_id == UNSET_VALUE
+        if @next_state_id.nil?
           state_id_from_classname
         else
           @next_state_id
@@ -23,7 +23,7 @@ module Socrates
       end
 
       def next_state_action
-        if @next_state_action == UNSET_VALUE
+        if @next_state_action.nil?
           next_action(@data.state_action)
         else
           @next_state_action
@@ -47,7 +47,7 @@ module Socrates
             if state_id.nil?
               nil
             elsif state_id == state_id_from_classname
-              next_action(@data.current_action)
+              next_action(@data.state_action)
             else
               :say
             end
@@ -67,7 +67,7 @@ module Socrates
       def end_conversation
         @data.clear
 
-        transition_to nil
+        transition_to END_OF_CONVERSATION, action: END_OF_CONVERSATION
       end
 
       def say
@@ -80,7 +80,7 @@ module Socrates
 
       private
 
-      UNSET_VALUE = :noop # TODO: Flip this and use it to indicate END OF CONVERSAION?
+      END_OF_CONVERSATION = :__end__
 
       def next_action(current_action)
         (%i[say listen] - [current_action]).first
