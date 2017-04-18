@@ -54,7 +54,7 @@ module Socrates
             elsif state_id == state_id_from_classname
               next_action(@data.state_action)
             else
-              :say
+              :ask
             end
         end
 
@@ -75,7 +75,7 @@ module Socrates
         transition_to END_OF_CONVERSATION, action: END_OF_CONVERSATION
       end
 
-      def say
+      def ask
         # stub implementation, to be overwritten.
       end
 
@@ -88,7 +88,7 @@ module Socrates
       END_OF_CONVERSATION = :__end__
 
       def next_action(current_action)
-        (%i[say listen] - [current_action]).first
+        (%i[ask listen] - [current_action]).first
       end
 
       def state_id_from_classname

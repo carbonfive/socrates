@@ -37,7 +37,7 @@ module Socrates
     class Help
       include Socrates::Core::State
 
-      def say
+      def ask
         respond message: <<~MSG
           Thanks for asking! I can do these things for you...
 
@@ -55,7 +55,7 @@ module Socrates
     class NoComprende
       include Socrates::Core::State
 
-      def say
+      def ask
         respond message: "Whoops, I don't know what you mean by that. Try `help` to see my commands."
 
         transition_to :get_started
@@ -65,7 +65,7 @@ module Socrates
     class AskForName
       include Socrates::Core::State
 
-      def say
+      def ask
         respond message: "First things first, what's your name?"
       end
 
@@ -77,7 +77,7 @@ module Socrates
     class AskForBirthDate
       include Socrates::Core::State
 
-      def say
+      def ask
         respond message: "Hi #{first_name}! What's your birth date (e.g. MM/DD/YYYY)?"
       end
 
@@ -103,10 +103,10 @@ module Socrates
     class CalculateAge
       include Socrates::Core::State
 
-      def say
+      def ask
         respond message: "Got it #{first_name}! So that makes you #{calculate_age} years old."
 
-        # Example of a :say => :say transition.
+        # Example of a :ask => :ask transition.
         transition_to :end_conversation_1
       end
 
@@ -128,10 +128,10 @@ module Socrates
     class EndConversation1
       include Socrates::Core::State
 
-      def say
+      def ask
         respond message: "That's all for now..."
 
-        # Example of another :say => :say transition.
+        # Example of another :ask => :ask transition.
         transition_to :end_conversation_2
       end
     end
@@ -139,7 +139,7 @@ module Socrates
     class EndConversation2
       include Socrates::Core::State
 
-      def say
+      def ask
         respond message: "Type `help` to see what else I can do."
 
         end_conversation
@@ -149,7 +149,7 @@ module Socrates
     class RaiseError
       include Socrates::Core::State
 
-      def say
+      def ask
         respond message: "I will raise an error regardless of what you enter next..."
       end
 

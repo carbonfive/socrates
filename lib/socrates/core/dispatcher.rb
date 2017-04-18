@@ -19,14 +19,14 @@ module Socrates
 
       # rubocop:disable Metrics/AbcSize
       def dispatch(message:, context: {})
-        client_id = @adapter.client_id_from_context(context)
-
         message = message.strip
+
+        client_id = @adapter.client_id_from_context(context)
 
         @logger.info %(#{client_id} recv: "#{message}")
 
-        # In many cases, a single state will run in this loop, but it's possible that a chain of 2 or more :say
-        # actions could run, before stopping at a listen (and waiting for the next input).
+        # In many cases, a two actions will run in this loop: :listen => :ask, but it's possible that a chain of 2 or
+        # more :ask actions could run, before stopping at a :listen (and waiting for the next input).
         loop do
           state_data = fetch_snapshot(client_id)
           state      = instantiate_state(state_data, context)

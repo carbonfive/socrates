@@ -4,9 +4,9 @@ Socrates is a micro-framework for building conversational interfaces. It provide
  
 It's designed for building conversational Slack bots, but is designed in such a way that other adapters could be written. It ships with a Console adapter for testing locally in the terminal as well as a Memory adapter for use in automated tests.
 
-Conversational state is captured either in memory (deveopment and testing) or in Redis. This too is pluggable so that other storage backends could be used.
+Conceptually, a conversation is a sequence of asking and listening actions. As a conversational progresses, information is gathered and at some point, acted upon by the system.
 
-Conceptually, a conversation is a sequence of listening and saying actions. As a conversational progresses, information is gathered and at some point, acted upon by the system.
+Conversational state is captured either in memory (deveopment and testing) or in Redis. This too is pluggable so that other storage backends could be used.
 
 Here is a simple example, asking for one's name, birth date, and then responding with the current age.
 
@@ -31,7 +31,7 @@ end
 class Help
   include Socrates::Core::State
 
-  def say
+  def ask
     respond message: <<~MSG
       Thanks for asking! I can do these things for you...
 
@@ -47,7 +47,7 @@ end
 class NoComprende
   include Socrates::Core::State
 
-  def say
+  def ask
     respond message: "Whoops, I don't know what you mean by that. Try `help` to see my commands."
     transition_to :get_started
   end
@@ -56,7 +56,7 @@ end
 class AskForName
   include Socrates::Core::State
 
-  def say
+  def ask
     respond message: "First things first, what's your name?"
   end
 
@@ -68,7 +68,7 @@ end
 class AskForBirthDate
   include Socrates::Core::State
 
-  def say
+  def ask
     respond message: "Hi #{first_name}! What's your birth date (e.g. MM/DD/YYYY)?"
   end
 
@@ -93,7 +93,7 @@ end
 class CalculateAge
   include Socrates::Core::State
 
-  def say
+  def ask
     respond message: "Got it #{first_name}! So that makes you #{calculate_age} years old."
     end_conversation
   end
