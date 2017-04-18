@@ -1,52 +1,5 @@
+inherit_from:
+  - https://raw.githubusercontent.com/carbonfive/c5-conventions/master/rubocop/rubocop.yml
+
 AllCops:
   TargetRubyVersion: 2.4
-
-Metrics/BlockLength:
-  CountComments: false
-  Max: 50
-  ExcludedMethods: [describe, context]
-
-Metrics/LineLength:
-  Max: 120
-
-Metrics/MethodLength:
-  Max: 20
-
-Security/YAMLLoad:
-  Enabled: false
-
-Style/CaseIndentation:
-  Enabled: false
-
-Style/Documentation:
-  Enabled: false
-
-Style/EmptyMethod:
-  EnforcedStyle: expanded
-
-Style/FrozenStringLiteralComment:
-  EnforcedStyle: never
-
-Style/IndentArray:
-  EnforcedStyle: consistent
-
-Style/ModuleFunction:
-  EnforcedStyle: extend_self
-
-Style/MultilineMethodCallIndentation:
-  EnforcedStyle: indented
-
-Style/MutableConstant:
-  Enabled: false
-
-Style/PredicateName:
-  Enabled: false
-
-Style/PreferredHashMethods:
-  Enabled: false
-
-Style/StringLiterals:
-  EnforcedStyle: double_quotes
-
-Style/StringLiteralsInInterpolation:
-  EnforcedStyle: double_quotes
