@@ -12,6 +12,7 @@ module Socrates
         @context           = context
         @next_state_id     = nil
         @next_state_action = nil
+        @logger            = Socrates::Config.logger || Socrates::Logger.default
       end
 
       def next_state_id
@@ -38,7 +39,11 @@ module Socrates
           message  = ERB.new(source, 0, "<>").result(binding)
         end
 
-        @adapter.send_message(message, @context) if message
+        return if message.empty?
+
+        client_id = @adapter.client_id_from_context(@context)
+        @logger.info %(#{client_id} send: "#{message.gsub("\n", "\\n")}")
+        @adapter.send_message(message, @context)
       end
 
       def transition_to(state_id, action: nil, data: {})

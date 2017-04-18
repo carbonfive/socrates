@@ -23,7 +23,7 @@ module Socrates
 
         message = message.strip
 
-        @logger.info %(#{client_id} received: "#{message}")
+        @logger.info %(#{client_id} recv: "#{message}")
 
         # In many cases, a single state will run in this loop, but it's possible that a chain of 2 or more :say
         # actions could run, before stopping at a listen (and waiting for the next input).
@@ -33,6 +33,10 @@ module Socrates
 
           args = [state.data.state_action]
           args << message if state.data.state_action == :listen
+
+          msg = %(#{client_id} processing :#{state.data.state_id} / :#{args.first})
+          msg += %( / message: "#{args.second}") if args.count > 1
+          @logger.debug msg
 
           begin
             state.send(*args)
@@ -44,6 +48,8 @@ module Socrates
           # Update the persisted state data so we know what to run next time.
           state.data.state_id     = state.next_state_id
           state.data.state_action = state.next_state_action
+
+          @logger.debug %(#{client_id} transition to :#{state.data.state_id} / :#{state.data.state_action})
 
           persist_snapshot(client_id, state.data)
 
