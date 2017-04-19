@@ -22,6 +22,9 @@ module Socrates
         @slack_client.on :message do |data|
           # puts "> #{data}"
 
+          # When first connecting, Slack may resend the last message. Ignore it...
+          next if data.reply_to.present?
+
           @dispatcher.dispatch(message: data.text, context: data)
         end
 
