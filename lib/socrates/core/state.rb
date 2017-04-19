@@ -41,9 +41,13 @@ module Socrates
 
         return if message.empty?
 
-        client_id = @adapter.client_id_from_context(@context)
         @logger.info %(#{client_id} send: "#{message.gsub("\n", "\\n")}")
         @adapter.send_message(message, @context)
+      end
+
+      def send_message(to:, message:)
+        @logger.info %(#{client_id} send direct to #{to}: "#{message.gsub("\n", "\\n")}")
+        @adapter.send_direct_message(message, to, @context)
       end
 
       def transition_to(state_id, action: nil, data: {})
@@ -89,6 +93,10 @@ module Socrates
 
       def next_action(current_action)
         (%i[ask listen] - [current_action]).first
+      end
+
+      def client_id
+        @adapter.client_id_from_context(@context)
       end
 
       def state_id_from_classname

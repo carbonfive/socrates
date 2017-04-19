@@ -1,10 +1,11 @@
 class MemoryAdapter
   CLIENT_ID = "MEMORY"
 
-  attr_reader :history
+  attr_reader :history, :dms
 
   def initialize
     @history = []
+    @dms     = {}
   end
 
   def client_id_from_context(_context)
@@ -13,6 +14,13 @@ class MemoryAdapter
 
   def send_message(message, _context)
     @history << message
+  end
+
+  def send_direct_message(message, user, _context)
+    user = user.id if user.respond_to?(:id)
+
+    @dms[user] = [] unless @dms.key?(user)
+    @dms[user] << message
   end
 
   def last_message
