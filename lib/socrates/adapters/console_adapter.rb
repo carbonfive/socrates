@@ -13,14 +13,15 @@ class ConsoleAdapter
     puts "\n#{colorize(@name, "32;1")}: #{message}"
   end
 
-    name = if user.respond_to?(:name)
-             user.name
-           elsif user.respond_to?(:id)
-             user.id
-           else
-             user
-           end
   def send_direct_message(message, user, *)
+    name =
+      if user.respond_to?(:name)
+        user.name
+      elsif user.respond_to?(:id)
+        user.id
+      else
+        user
+      end
 
     puts "\n[DM] #{colorize(name, "34;1")}: #{message}"
   end
