@@ -41,13 +41,13 @@ module Socrates
 
         return if message.empty?
 
-        @logger.info %(#{client_id} send: "#{message.gsub("\n", "\\n")}")
-        @adapter.send_message(message, @context)
+        @logger.info %(#{client_id} send: "#{format_for_logging(message)}")
+        @adapter.send_message(message, context: @context)
       end
 
       def send_message(to:, message:)
-        @logger.info %(#{client_id} send direct to #{to}: "#{message.gsub("\n", "\\n")}")
-        @adapter.send_direct_message(message, to, @context)
+        @logger.info %(#{client_id} send direct to #{to}: "#{format_for_logging(message)}")
+        @adapter.send_direct_message(message, to, context: @context)
       end
 
       def transition_to(state_id, action: nil, data: {})
@@ -97,6 +97,10 @@ module Socrates
 
       def client_id
         @adapter.client_id_from_context(@context)
+      end
+
+      def format_for_logging(message)
+        message.gsub("\n", "\\n")
       end
 
       def state_id_from_classname
