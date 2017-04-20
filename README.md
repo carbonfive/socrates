@@ -2,11 +2,13 @@
 
 Socrates is a micro-framework for building conversational interfaces. It provides straight-forward state management, a clear pattern for modeling the states and conversational flow (transitions), and some helpers.
  
-It's designed for building conversational Slack bots, but is designed in such a way that other adapters could be written. It ships with a Console adapter for testing locally in the terminal as well as a Memory adapter for use in automated tests.
+ It's designed for building conversational Slack bots, but is designed in such a way that other adapters could be written. It ships with a Console adapter for testing locally in the terminal as well as a Memory adapter for use in automated tests.
 
-Conceptually, a conversation is a sequence of asking and listening actions. As a conversational progresses, information is gathered and at some point, acted upon by the system.
+*Disclaimer: This framework is currently experimental and will change.*
 
-Conversational state is captured either in memory (deveopment and testing) or in Redis. This too is pluggable so that other storage backends could be used.
+Conceptually, a conversation is a sequence of asking and listening actions. As a conversation progresses, information is gathered and at some point, acted upon by the system.
+
+Conversational state is captured either in memory (development and testing) or in Redis. This too is pluggable so that other storage backends could be used.
 
 Here is a simple example, asking for one's name, birth date, and then responding with the current age.
 
@@ -61,6 +63,7 @@ class AskForName
   end
 
   def listen(message)
+    # Transition to the next step while persisting the name for future retrieval.
     transition_to :ask_for_birth_date, data: { name: message }
   end
 end
@@ -80,6 +83,7 @@ class AskForBirthDate
       repeat_action
       return
     end
+    # Transition to the next step while persisting the birth date for future retrieval.
     transition_to :calculate_age, data: { birth_date: birth_date }
   end
 
@@ -132,15 +136,25 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+TODO: Write usage instructions here.
+
+## Core Concepts
+
+* Dispatcher
+* Adapter (Slack, Console, Memory)
+* Storage (Memory, Redis)
+* State
+* Helpers
+
+TODO: Expand descriptions. Include a diagram.
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake` to run the tests and rubocop. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake` to run the specs and rubocop. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/christiannelson/socrates.
+Bug reports and pull requests are welcome on GitHub at https://github.com/carbonfive/socrates.
 

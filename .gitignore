@@ -8,6 +8,7 @@
 /spec/reports/
 /tmp/
 /.rubocop-https---raw-githubusercontent-com-carbonfive-c5-conventions-master-rubocop-rubocop-yml
+/socrates-*.gem
 
 # rspec failure tracking
 .rspec_status
