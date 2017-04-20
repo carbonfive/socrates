@@ -109,7 +109,7 @@ module Socrates
         @logger.warn "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{e.message}"
         @logger.warn e
 
-        @adapter.send_message(@error_message, context)
+        @adapter.send_message(@error_message, context: context)
         state.data.clear
         state.data.state_id     = nil
         state.data.state_action = nil

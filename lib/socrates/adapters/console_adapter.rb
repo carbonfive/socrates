@@ -9,11 +9,10 @@ class ConsoleAdapter
     CLIENT_ID
   end
 
-  def send_message(message, _context)
+  def send_message(message, *)
     puts "\n#{colorize(@name, "32;1")}: #{message}"
   end
 
-  def send_direct_message(message, user, _context)
     name = if user.respond_to?(:name)
              user.name
            elsif user.respond_to?(:id)
@@ -21,6 +20,7 @@ class ConsoleAdapter
            else
              user
            end
+  def send_direct_message(message, user, *)
 
     puts "\n[DM] #{colorize(name, "34;1")}: #{message}"
   end

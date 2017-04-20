@@ -7,11 +7,11 @@ class SlackAdapter
     context&.user
   end
 
-  def send_message(message, context)
+  def send_message(message, context:)
     @slack_real_time_client.message(text: message, channel: context.channel)
   end
 
-  def send_direct_message(message, user, _context)
+  def send_direct_message(message, user, *)
     user = user.id if user.respond_to?(:id)
 
     im_channel = lookup_im_channel(user)
