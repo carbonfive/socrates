@@ -3,8 +3,7 @@ module Socrates
     class CLIBot
       def initialize(state_factory:)
         @adapter    = ConsoleAdapter.new
-        @storage    = Storage::MemoryStorage.new
-        @dispatcher = Core::Dispatcher.new(storage: @storage, adapter: @adapter, state_factory: state_factory)
+        @dispatcher = Core::Dispatcher.new(adapter: @adapter, state_factory: state_factory)
       end
 
       def start

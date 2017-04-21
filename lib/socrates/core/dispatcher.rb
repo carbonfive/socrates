@@ -11,7 +11,7 @@ module Socrates
       def initialize(adapter:, state_factory:, storage: nil)
         @adapter       = adapter
         @state_factory = state_factory
-        @storage       = storage || Storage::MemoryStorage.new
+        @storage       = storage || Socrates::Config.storage || Storage::MemoryStorage.new
 
         @logger        = Socrates::Config.logger || Socrates::Logger.default
         @error_message = Socrates::Config.error_message || DEFAULT_ERROR_MESSAGE

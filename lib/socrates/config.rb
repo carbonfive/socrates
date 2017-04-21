@@ -3,6 +3,7 @@ module Socrates
     extend self
 
     attr_accessor :view_path
+    attr_accessor :storage
     attr_accessor :error_message
     attr_accessor :logger
   end

@@ -9,13 +9,12 @@ module Socrates
           config.logger       = Logger.new(STDOUT)
           config.logger.level = Logger::INFO
 
-          raise "Missing ENV[SLACK_API_TOKEN]!" unless config.token
+          raise "Missing ENV['SLACK_API_TOKEN']!" unless config.token
         end
 
         @slack_client = Slack::RealTime::Client.new
         @adapter      = SlackAdapter.new(@slack_client)
-        @storage      = Storage::RedisStorage.new
-        @dispatcher   = Core::Dispatcher.new(storage: @storage, adapter: @adapter, state_factory: state_factory)
+        @dispatcher   = Core::Dispatcher.new(adapter: @adapter, state_factory: state_factory)
       end
 
       def start
