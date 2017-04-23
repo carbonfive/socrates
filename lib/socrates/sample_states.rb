@@ -25,7 +25,7 @@ module Socrates
       include Socrates::Core::State
 
       def listen(message)
-        case message.strip
+        case message.downcase
           when "help"
             transition_to :help
           when "age"

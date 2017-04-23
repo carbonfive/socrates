@@ -33,7 +33,8 @@ RSpec.describe Socrates::Core::Dispatcher do
       dispatcher.dispatch(message: "help")
       expect(adapter.last_message).to match("`age`").and match("`help`")
 
-      dispatcher.dispatch(message: "age")
+      # Handle yelling with grace.
+      dispatcher.dispatch(message: "AGE")
       expect(adapter.last_message).to eq "First things first, what's your name?"
 
       # Trigger an expiration.
