@@ -63,17 +63,17 @@ module Socrates
 
       DEFAULT_ERROR_MESSAGE = "Sorry, an error occurred. We'll have to start over..."
 
+      # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
       def fetch_snapshot(client_id)
-        state_data =
-          if @storage.has_key?(client_id)
-            begin
-              snapshot = @storage.get(client_id)
-              StateData.deserialize(snapshot)
-            rescue => e
-              @logger.warn "Error while fetching snapshot for client id '#{client_id}', resetting state: #{e.message}"
-              @logger.warn e
-            end
+        if @storage.has_key?(client_id)
+          begin
+            snapshot   = @storage.get(client_id)
+            state_data = StateData.deserialize(snapshot)
+          rescue => e
+            @logger.warn "Error while fetching snapshot for client id '#{client_id}', resetting state: #{e.message}"
+            @logger.warn e
           end
+        end
 
         state_data ||= StateData.new
 
@@ -95,6 +95,7 @@ module Socrates
 
         state_data
       end
+      # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
       def persist_snapshot(client_id, state_data)
         state_data.reset_elapsed_time
@@ -116,9 +117,7 @@ module Socrates
         return true if state.data.state_action == :listen
 
         # Stop transitioning if there's no state to transition to, or the conversation has ended.
-        return true if state.data.state_id.nil? || state.data.state_id == State::END_OF_CONVERSATION
-
-        false
+        state.data.state_id.nil? || state.data.state_id == State::END_OF_CONVERSATION
       end
 
       def handle_action_error(e, client_id, state, context)
