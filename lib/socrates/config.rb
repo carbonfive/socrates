@@ -5,6 +5,7 @@ module Socrates
     attr_accessor :view_path
     attr_accessor :storage
     attr_accessor :error_message
+    attr_accessor :expired_timeout # seconds
     attr_accessor :logger
   end
 

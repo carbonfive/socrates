@@ -5,8 +5,12 @@ require "socrates/core/state"
 module Socrates
   module SampleStates
     class StateFactory
-      def default_state
+      def default
         :get_started
+      end
+
+      def expired(*)
+        :expired
       end
 
       def build(state_data:, adapter:, context: nil)
@@ -59,6 +63,16 @@ module Socrates
         respond message: "Whoops, I don't know what you mean by that. Try `help` to see my commands."
 
         transition_to :get_started
+      end
+    end
+
+    class Expired
+      include Socrates::Core::State
+
+      def ask
+        respond message: "I've forgotten what we're talking about, let's start over."
+
+        transition_to :help
       end
     end
 
