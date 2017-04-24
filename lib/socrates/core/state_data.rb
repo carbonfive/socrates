@@ -6,13 +6,22 @@ require "yaml"
 module Socrates
   module Core
     class StateData
-      attr_accessor :state_id, :state_action
+      attr_accessor :state_id, :state_action, :timestamp
 
       def initialize(state_id: nil, state_action: nil, data: {}, temporary_keys: [])
         @state_id       = state_id
         @state_action   = state_action
+        @timestamp      = Time.current
         @data           = data
         @temporary_keys = Set.new(temporary_keys)
+      end
+
+      def elapsed_time
+        Time.current - @timestamp
+      end
+
+      def reset_elapsed_time
+        @timestamp = Time.current
       end
 
       def keys

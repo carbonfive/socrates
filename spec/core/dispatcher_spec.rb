@@ -17,8 +17,9 @@ RSpec.describe Socrates::Core::Dispatcher do
 
   before do
     Socrates.configure do |config|
-      config.logger        = NullLogger.new
-      config.error_message = "Whoops! Time for a reboot..."
+      config.logger          = NullLogger.new
+      config.error_message   = "Whoops! Time for a reboot..."
+      config.expired_timeout = 0.1
     end
   end
 
@@ -32,6 +33,16 @@ RSpec.describe Socrates::Core::Dispatcher do
       dispatcher.dispatch(message: "help")
       expect(adapter.last_message).to match("`age`").and match("`help`")
 
+      # Handle yelling with grace.
+      dispatcher.dispatch(message: "AGE")
+      expect(adapter.last_message).to eq "First things first, what's your name?"
+
+      # Trigger an expiration.
+      sleep 0.2
+      dispatcher.dispatch(message: "age")
+      expect(adapter.history[-2]).to eq "I've forgotten what we're talking about, let's start over."
+
+      # Start over.
       dispatcher.dispatch(message: "age")
       expect(adapter.last_message).to eq "First things first, what's your name?"
 

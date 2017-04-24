@@ -63,32 +63,49 @@ module Socrates
 
       DEFAULT_ERROR_MESSAGE = "Sorry, an error occurred. We'll have to start over..."
 
+      # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
       def fetch_snapshot(client_id)
-        state_data =
-          if @storage.has_key?(client_id)
-            begin
-              snapshot = @storage.get(client_id)
-              StateData.deserialize(snapshot)
-            rescue => e
-              @logger.warn "Error while fetching snapshot for client id '#{client_id}', resetting state: #{e.message}"
-              @logger.warn e
-            end
+        if @storage.has_key?(client_id)
+          begin
+            snapshot   = @storage.get(client_id)
+            state_data = StateData.deserialize(snapshot)
+          rescue => e
+            @logger.warn "Error while fetching snapshot for client id '#{client_id}', resetting state: #{e.message}"
+            @logger.warn e
           end
+        end
 
         state_data ||= StateData.new
 
         # If the current state is nil or END_OF_CONVERSATION, set it to the default state, which is typically a state
         # that waits for an initial command or input from the user (e.g. help, start, etc).
         if state_data.state_id.nil? || state_data.state_id == State::END_OF_CONVERSATION
-          state_data.state_id     = @state_factory.default_state
-          state_data.state_action = :listen
+          default_state, default_action = @state_factory.default
+
+          state_data.state_id     = default_state
+          state_data.state_action = default_action || :listen
+
+        # Check to see if the last interation was too long ago.
+        elsif state_data_expired?(state_data) && @state_factory.expired(state_data).present?
+          expired_state, expired_action = @state_factory.expired(state_data)
+
+          state_data.state_id     = expired_state
+          state_data.state_action = expired_action || :ask
         end
 
         state_data
       end
+      # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
       def persist_snapshot(client_id, state_data)
+        state_data.reset_elapsed_time
         @storage.put(client_id, state_data.serialize)
+      end
+
+      def state_data_expired?(state_data)
+        return unless state_data.timestamp.present?
+
+        state_data.elapsed_time > (Config.expired_timeout || 30.minutes)
       end
 
       def instantiate_state(state_data, context)
@@ -100,9 +117,7 @@ module Socrates
         return true if state.data.state_action == :listen
 
         # Stop transitioning if there's no state to transition to, or the conversation has ended.
-        return true if state.data.state_id.nil? || state.data.state_id == State::END_OF_CONVERSATION
-
-        false
+        state.data.state_id.nil? || state.data.state_id == State::END_OF_CONVERSATION
       end
 
       def handle_action_error(e, client_id, state, context)
