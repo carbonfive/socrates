@@ -41,15 +41,6 @@ RSpec.describe Socrates::Core::Dispatcher do
       dispatcher.dispatch(message: "AGE")
       expect(adapter.last_message).to eq "First things first, what's your name?"
 
-      # Trigger an expiration.
-      sleep 0.2
-      dispatcher.dispatch(message: "age")
-      expect(adapter.history[-2]).to eq "I've forgotten what we're talking about, let's start over."
-
-      # Start over.
-      dispatcher.dispatch(message: "age")
-      expect(adapter.last_message).to eq "First things first, what's your name?"
-
       dispatcher.dispatch(message: "Christian Nelson")
       expect(adapter.last_message).to eq "Hi Christian! What's your birth date (e.g. MM/DD/YYYY)?"
 
@@ -68,6 +59,16 @@ RSpec.describe Socrates::Core::Dispatcher do
       # And that we handle some random input.
       dispatcher.dispatch(message: "Howdy!")
       expect(adapter.last_message).to eq "Whoops, I don't know what you mean by that. Try `help` to see my commands."
+    end
+
+    it "transitions to the expired state when too much time has passed" do
+      dispatcher.dispatch(message: "age")
+      expect(adapter.last_message).to eq "First things first, what's your name?"
+
+      # Trigger an expiration.
+      sleep 0.2
+      dispatcher.dispatch(message: "Bob Smith")
+      expect(adapter.history[-2]).to eq "I've forgotten what we're talking about, let's start over."
     end
 
     it "recovers from an unexpected error while invoking a state action" do
