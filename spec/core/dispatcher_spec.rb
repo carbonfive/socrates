@@ -27,7 +27,7 @@ RSpec.describe Socrates::Core::Dispatcher do
     Timecop.travel(Date.parse("2017-04-22"))
   end
 
-  let(:adapter) { MemoryAdapter.new }
+  let(:adapter) { Socrates::Adapters::MemoryAdapter.new }
   let(:state_factory) { Socrates::SampleStates::StateFactory.new }
   subject(:dispatcher) { described_class.new(adapter: adapter, state_factory: state_factory) }
 
