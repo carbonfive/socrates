@@ -1,8 +1,8 @@
 module Socrates
   module Bots
     class CLIBot
-      def initialize(state_factory:)
-        @adapter    = ConsoleAdapter.new
+      def initialize(adapter:, state_factory:)
+        @adapter    = adapter || Adapters::ConsoleAdapter.new
         @dispatcher = Core::Dispatcher.new(adapter: @adapter, state_factory: state_factory)
       end
 
