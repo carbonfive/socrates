@@ -1,5 +1,7 @@
 require "spec_helper"
 
+require "timecop"
+
 require "socrates/storage/storage"
 require "socrates/core/dispatcher"
 require "socrates/sample_states"
@@ -21,6 +23,8 @@ RSpec.describe Socrates::Core::Dispatcher do
       config.error_message   = "Whoops! Time for a reboot..."
       config.expired_timeout = 0.1
     end
+
+    Timecop.travel(Date.parse("2017-04-22"))
   end
 
   let(:adapter) { MemoryAdapter.new }
