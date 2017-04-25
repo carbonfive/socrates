@@ -135,7 +135,7 @@ module Socrates
       end
 
       def calculate_age
-        ((Date.today.to_time - birth_date.to_time) / 31_536_000).floor
+        ((Date.today.to_time - birth_date.to_time) / 1.year).floor
       end
     end
 
