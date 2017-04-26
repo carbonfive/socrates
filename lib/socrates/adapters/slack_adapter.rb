@@ -1,8 +1,8 @@
 module Socrates
   module Adapters
     class SlackAdapter
-      def initialize(slack_real_time_client)
-        @slack_real_time_client = slack_real_time_client
+      def initialize(real_time_client)
+        @real_time_client = real_time_client
       end
 
       def client_id_from_context(context)
@@ -10,7 +10,7 @@ module Socrates
       end
 
       def send_message(message, context:)
-        @slack_real_time_client.message(text: message, channel: context.channel)
+        @real_time_client.message(text: message, channel: context.channel)
       end
 
       def send_direct_message(message, user, *)
@@ -18,28 +18,28 @@ module Socrates
 
         im_channel = lookup_im_channel(user)
 
-        @slack_real_time_client.message(text: message, channel: im_channel)
+        @real_time_client.message(text: message, channel: im_channel)
       end
 
       def users_list
-        client = @slack_real_time_client.web_client
+        client = @real_time_client.web_client
         client.users_list
       end
 
       def lookup_email(context:)
-        client = @slack_real_time_client.web_client
+        client = @real_time_client.web_client
         client.users_info(user: context.user)
       end
 
       private
 
       def lookup_im_channel(user)
-        im = @slack_real_time_client.ims.values.find { |i| i.user == user }
+        im = @real_time_client.ims.values.find { |i| i.user == user }
 
         return im if im.present?
 
         # Start a new conversation with this user.
-        response = @slack_real_time_client.web_client.im_open(user: user.id)
+        response = @real_time_client.web_client.im_open(user: user.id)
         response.channel.id
       end
     end
