@@ -8,7 +8,7 @@ module Socrates
 
       def start
         while (input = gets.chomp)
-          @dispatcher.dispatch(message: input)
+          @dispatcher.dispatch(input)
         end
       end
     end

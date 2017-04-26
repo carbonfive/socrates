@@ -18,7 +18,7 @@ module Socrates
       end
 
       # rubocop:disable Metrics/AbcSize
-      def dispatch(message:, context: {})
+      def dispatch(message, context: {})
         message = message.strip
 
         client_id = @adapter.client_id_from_context(context)

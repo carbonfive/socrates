@@ -24,7 +24,7 @@ module Socrates
           # When first connecting, Slack may resend the last message. Ignore it...
           next if data.reply_to.present?
 
-          @dispatcher.dispatch(message: data.text, context: data)
+          @dispatcher.dispatch(data.text, context: data)
         end
 
         @slack_client.start!
