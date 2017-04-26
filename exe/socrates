@@ -4,9 +4,76 @@ File.expand_path("../../lib", __FILE__).tap do |lib|
   $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 end
 
+require "optparse"
+
 require "socrates"
 require "socrates/sample_states"
 
-puts "Type `help` to see what I can do..."
+options = {
+  adapter: "console",
+  storage: "memory",
+  debug:   false
+}
 
-Socrates::Bots::CLIBot.new(state_factory: Socrates::SampleStates::StateFactory.new).start
+option_parser = OptionParser.new do |parser|
+  parser.banner = "Usage: socrates [options] run"
+
+  parser.on("-h", "--help", "Show this help message") do
+    puts parser
+    exit
+  end
+  parser.on("-a", "--adapter ADAPTER", "Use the specified Adapter: console (default) or slack") do |value|
+    options[:adapter] = value.downcase
+  end
+  parser.on("-s", "--storage STORAGE", "Use the specified Storage: memory (default) or redis") do |value|
+    options[:storage] = value.downcase
+  end
+  parser.on("-d", "--debug", "Print detailed logging") do
+    options[:debug] = true
+  end
+end
+option_parser.parse!
+
+def run_command(options)
+  storage =
+    case options[:storage]
+      when "redis"
+        Socrates::Storage::RedisStorage.new(url: ENV.fetch("REDIS_URL", "redis://localhost"))
+      else
+        Socrates::Storage::MemoryStorage.new
+    end
+
+  Socrates.configure do |config|
+    config.storage = storage
+
+    if options[:debug]
+      config.logger       = Socrates::Logger.default
+      config.logger.level = Logger::DEBUG
+    end
+  end
+
+  case (adapter = options[:adapter])
+    when "console"
+      Socrates::Bots::CLIBot.new(state_factory: Socrates::SampleStates::StateFactory.new).start
+    when "slack"
+      Socrates::Bots::SlackBot.new(state_factory: Socrates::SampleStates::StateFactory.new).start
+    else
+      puts "Unknown adapter '#{adapter}'"
+      exit 1
+  end
+end
+
+command = ARGV.shift
+
+if command.nil?
+  puts option_parser.help
+  exit 1
+end
+
+case command.downcase
+  when "run"
+    run_command(options)
+  else
+    puts "Unknown command '#{command}'"
+    exit 1
+end

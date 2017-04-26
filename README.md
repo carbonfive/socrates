@@ -136,7 +136,20 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here.
+Socrates is intended to be used programmatically from your application.
+
+However, it's easy to see a sample conversation run in either the console or on Slack. 
+
+To see socrates in action in the console:
+
+    $ socrates run
+
+And on Slack:
+    
+    $ SLACK_API_TOKEN=<your token> socrates -a slack run
+    
+Use `-s redis` to store state in Redis instead of memory. The key difference is that state will survive exiting and
+restarting the bot. Use the `-d` flag for debugging log information.
 
 ## Core Concepts
 
