@@ -18,13 +18,20 @@ module Socrates
       end
 
       def start
+        reply_to_messages = {}
+
         @slack_client.on :message do |data|
           # puts "> #{data}"
 
-          # When first connecting, Slack may resend the last message. Ignore it...
-          next if data.reply_to.present?
+          if data.reply_to.present?
+            # Stash this message away because we may need it later.
+            reply_to_messages[data.channel] = data.text
+          end
 
-          @dispatcher.dispatch(data.text, context: data)
+          # Only dispatch the message if it does not match a previous reply_to message for the channel.
+          if reply_to_messages[data.channel] != data.text
+            @dispatcher.dispatch(data.text, context: data)
+          end
         end
 
         @slack_client.start!
