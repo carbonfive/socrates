@@ -28,7 +28,8 @@ module Socrates
 
       def lookup_email(context:)
         client = @real_time_client.web_client
-        client.users_info(user: context.user)
+        info = client.users_info(user: context.user)
+        info.present? ? info.user.profile.email : nil
       end
 
       private
