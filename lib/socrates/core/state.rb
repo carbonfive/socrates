@@ -46,7 +46,9 @@ module Socrates
       end
 
       def send_message(to:, message:)
-        @logger.info %(#{client_id} send direct to #{to}: "#{format_for_logging(message)}")
+        displayable_to = to.respond_to?(:id) ? to.id : to
+
+        @logger.info %(#{client_id} send direct to #{displayable_to}: "#{format_for_logging(message)}")
         @adapter.send_direct_message(message, to, context: @context)
       end
 
