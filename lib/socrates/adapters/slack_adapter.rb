@@ -6,7 +6,10 @@ module Socrates
       end
 
       def client_id_from_context(context)
-        context&.user
+        raise ArgumentError, "Context cannot be nil" if context.nil?
+        raise ArgumentError, "Expected context to respond to :user" unless context.respond_to?(:user)
+
+        context.user
       end
 
       def send_message(message, context:)
@@ -16,16 +19,20 @@ module Socrates
       end
 
       def send_direct_message(message, user, *)
-        raise ArgumentError, "Expected a Slack User object" unless user.is_a?(Slack::RealTime::Models::User)
+        raise ArgumentError, "Expected user to respond to :id" unless user.respond_to?(:id)
 
         im_channel = lookup_im_channel(user)
 
         @real_time_client.message(text: message, channel: im_channel)
       end
 
-      def users_list
+      def users_list(include_deleted: false, include_bots: false)
         client = @real_time_client.web_client
-        client.users_list
+
+        client.users_list.tap do |response|
+          response.members.reject!(&:deleted?) unless include_deleted
+          response.members.reject!(&:is_bot?) unless include_bots
+        end
       end
 
       def lookup_email(context:)
@@ -33,7 +40,7 @@ module Socrates
 
         client = @real_time_client.web_client
         info   = client.users_info(user: context.user)
-        info.present? ? info.user.profile.email : nil
+        info.present? ? info.user.profile.email.presence : nil
       end
 
       private
