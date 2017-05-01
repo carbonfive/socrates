@@ -34,7 +34,7 @@ module Socrates
         users << User.new(id, name, Profile.new(first, last, email))
       end
 
-      def users_list
+      def users_list(*)
         Response.new(users)
       end
 
