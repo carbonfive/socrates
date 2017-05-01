@@ -10,11 +10,13 @@ module Socrates
       end
 
       def send_message(message, context:)
+        raise ArgumentError, "Expected context to respond to :channel" unless context.respond_to?(:channel)
+
         @real_time_client.message(text: message, channel: context.channel)
       end
 
       def send_direct_message(message, user, *)
-        user = user.id if user.respond_to?(:id)
+        raise ArgumentError, "Expected a Slack User object" unless user.is_a?(Slack::RealTime::Models::User)
 
         im_channel = lookup_im_channel(user)
 
@@ -27,8 +29,10 @@ module Socrates
       end
 
       def lookup_email(context:)
+        raise ArgumentError, "Expected context to respond to :user" unless context.respond_to?(:user)
+
         client = @real_time_client.web_client
-        info = client.users_info(user: context.user)
+        info   = client.users_info(user: context.user)
         info.present? ? info.user.profile.email : nil
       end
 
