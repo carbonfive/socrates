@@ -1,3 +1,6 @@
+require "socrates/adapters/console_adapter"
+require "socrates/core/dispatcher"
+
 module Socrates
   module Bots
     class CLIBot

@@ -1,3 +1,5 @@
+require "active_support/core_ext/object"
+
 module Socrates
   module Adapters
     class SlackAdapter

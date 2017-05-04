@@ -1,5 +1,6 @@
 require "spec_helper"
 
+require "socrates/adapters/memory_adapter"
 require "socrates/core/state"
 
 class StateA

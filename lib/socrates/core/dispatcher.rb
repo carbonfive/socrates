@@ -1,8 +1,11 @@
 require "hashie"
+require "active_support/all"
 
+require "socrates/config"
 require "socrates/logger"
 require "socrates/string_helpers"
 require "socrates/storage/storage"
+require "socrates/core/state"
 require "socrates/core/state_data"
 
 module Socrates
@@ -11,10 +14,10 @@ module Socrates
       def initialize(adapter:, state_factory:, storage: nil)
         @adapter       = adapter
         @state_factory = state_factory
-        @storage       = storage || Socrates::Config.storage || Storage::MemoryStorage.new
+        @storage       = storage || Config.storage || Storage::MemoryStorage.new
 
-        @logger        = Socrates::Config.logger || Socrates::Logger.default
-        @error_message = Socrates::Config.error_message || DEFAULT_ERROR_MESSAGE
+        @logger        = Config.logger || Socrates::Logger.default
+        @error_message = Config.error_message || DEFAULT_ERROR_MESSAGE
       end
 
       # rubocop:disable Metrics/AbcSize

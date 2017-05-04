@@ -1,6 +1,11 @@
 require "hashie"
 require "erb"
 
+require "socrates/config"
+require "socrates/logger"
+require "socrates/string_helpers"
+require "socrates/core/state_data"
+
 module Socrates
   module Core
     module State
@@ -12,7 +17,7 @@ module Socrates
         @context           = context
         @next_state_id     = nil
         @next_state_action = nil
-        @logger            = Socrates::Config.logger || Socrates::Logger.default
+        @logger            = Config.logger || Socrates::Logger.default
       end
 
       def next_state_id

@@ -2,6 +2,7 @@ require "hashie"
 require "json"
 require "set"
 require "yaml"
+require "active_support/core_ext/time"
 
 module Socrates
   module Core
@@ -33,8 +34,7 @@ module Socrates
       end
 
       def has_temporary_key?(key)
-        # The !! turns nils into false, which shouldn"t be necessary, but seems to be after the set is loaded from yaml.
-        @temporary_keys.include?(key) == true
+        @temporary_keys.include?(key) == true # This "== true" is necessary, as strange as that may seem.
       end
 
       def get(key, clear: false)

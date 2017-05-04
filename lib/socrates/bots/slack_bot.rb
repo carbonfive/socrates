@@ -1,5 +1,8 @@
 require "slack-ruby-client"
 
+require "socrates/adapters/slack_adapter"
+require "socrates/core/dispatcher"
+
 module Socrates
   module Bots
     class SlackBot

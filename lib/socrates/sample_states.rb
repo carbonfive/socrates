@@ -1,5 +1,6 @@
 require "date"
 
+require "socrates/string_helpers"
 require "socrates/core/state"
 
 module Socrates

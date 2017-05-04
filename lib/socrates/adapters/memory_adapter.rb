@@ -1,3 +1,5 @@
+require "socrates/adapters/stubs"
+
 module Socrates
   module Adapters
     class MemoryAdapter
