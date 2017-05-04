@@ -2,14 +2,16 @@ require "socrates/adapters/stubs"
 
 module Socrates
   module Adapters
-    class ConsoleAdapter
-      CLIENT_ID = "CONSOLE"
+    class Memory
+      CLIENT_ID = "MEMORY"
 
+      attr_reader :history, :dms
       attr_accessor :email, :users
 
-      def initialize(name: "@socrates")
-        @name  = name
-        @users = []
+      def initialize
+        @history = []
+        @dms     = Hash.new { |hash, key| hash[key] = [] }
+        @users   = []
       end
 
       def client_id_from_context(_context)
@@ -17,20 +19,17 @@ module Socrates
       end
 
       def send_message(message, *)
-        puts "\n#{colorize(@name, "32;1")}: #{message}"
+        @history << message
       end
 
       def send_direct_message(message, user, *)
-        name =
-          if user.respond_to?(:name)
-            user.name
-          elsif user.respond_to?(:id)
-            user.id
-          else
-            user
-          end
+        user = user.id if user.respond_to?(:id)
 
-        puts "\n[DM] #{colorize(name, "34;1")}: #{message}"
+        @dms[user] << message
+      end
+
+      def last_message
+        @history.last
       end
 
       def add_user(id: nil, name: nil, first: nil, last: nil, email: nil)
@@ -43,12 +42,6 @@ module Socrates
 
       def lookup_email(*)
         email
-      end
-
-      private
-
-      def colorize(str, color_code)
-        "\e[#{color_code}m#{str}\e[0m"
       end
     end
   end

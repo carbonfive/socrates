@@ -1,6 +1,6 @@
 require "slack-ruby-client"
 
-require "socrates/adapters/slack_adapter"
+require "socrates/adapters/slack"
 require "socrates/core/dispatcher"
 
 module Socrates
@@ -16,7 +16,7 @@ module Socrates
         end
 
         @slack_client = Slack::RealTime::Client.new
-        @adapter      = Adapters::SlackAdapter.new(@slack_client)
+        @adapter      = Adapters::Slack.new(@slack_client)
         @dispatcher   = Core::Dispatcher.new(adapter: @adapter, state_factory: state_factory)
       end
 
