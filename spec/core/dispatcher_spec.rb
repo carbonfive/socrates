@@ -2,7 +2,7 @@ require "spec_helper"
 
 require "timecop"
 
-require "socrates/storage/storage"
+require "socrates/storage/memory"
 require "socrates/core/dispatcher"
 require "socrates/sample_states"
 

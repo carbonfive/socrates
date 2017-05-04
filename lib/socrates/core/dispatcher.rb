@@ -4,7 +4,7 @@ require "active_support/all"
 require "socrates/config"
 require "socrates/logger"
 require "socrates/string_helpers"
-require "socrates/storage/storage"
+require "socrates/storage/memory"
 require "socrates/core/state"
 require "socrates/core/state_data"
 
@@ -14,7 +14,7 @@ module Socrates
       def initialize(adapter:, state_factory:, storage: nil)
         @adapter       = adapter
         @state_factory = state_factory
-        @storage       = storage || Config.storage || Storage::MemoryStorage.new
+        @storage       = storage || Config.storage || Storage::Memory.new
 
         @logger        = Config.logger || Socrates::Logger.default
         @error_message = Config.error_message || DEFAULT_ERROR_MESSAGE
