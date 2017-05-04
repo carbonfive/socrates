@@ -5,9 +5,9 @@ require "socrates/core/dispatcher"
 
 module Socrates
   module Bots
-    class SlackBot
+    class Slack
       def initialize(state_factory:)
-        Slack.configure do |config|
+        ::Slack.configure do |config|
           config.token        = ENV["SLACK_API_TOKEN"]
           config.logger       = Logger.new(STDOUT)
           config.logger.level = Logger::INFO
@@ -15,7 +15,7 @@ module Socrates
           raise "Missing ENV['SLACK_API_TOKEN']!" unless config.token
         end
 
-        @slack_client = Slack::RealTime::Client.new
+        @slack_client = ::Slack::RealTime::Client.new
         @adapter      = Adapters::Slack.new(@slack_client)
         @dispatcher   = Core::Dispatcher.new(adapter: @adapter, state_factory: state_factory)
       end

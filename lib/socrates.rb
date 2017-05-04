@@ -12,8 +12,8 @@ require "socrates/storage/redis"
 require "socrates/core/state_data"
 require "socrates/core/state"
 require "socrates/core/dispatcher"
-require "socrates/bots/cli_bot"
-require "socrates/bots/slack_bot"
+require "socrates/bots/cli"
+require "socrates/bots/slack"
 
 module Socrates
 end
