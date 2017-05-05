@@ -1,6 +1,6 @@
 # Socrates
 require "socrates/version"
-require "socrates/config"
+require "socrates/configuration"
 require "socrates/logger"
 require "socrates/string_helpers"
 require "socrates/adapters/console"
