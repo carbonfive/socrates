@@ -24,7 +24,11 @@ RSpec.describe Socrates::Core::Dispatcher do
       config.expired_timeout = 0.1
     end
 
-    Timecop.travel(Date.parse("2017-04-22"))
+    Timecop.travel(Date.new(2017, 4, 22))
+  end
+
+  after do
+    Timecop.return
   end
 
   let(:adapter) { Socrates::Adapters::Memory.new }
