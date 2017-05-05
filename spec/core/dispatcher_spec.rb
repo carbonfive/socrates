@@ -6,20 +6,12 @@ require "socrates/storage/memory"
 require "socrates/core/dispatcher"
 require "socrates/sample_states"
 
-class NullLogger < Logger
-  def initialize(*_args)
-  end
-
-  def add(*_args, &_block)
-  end
-end
-
 RSpec.describe Socrates::Core::Dispatcher do
   # This spec runs through the prepackaged conversational ui as defined in SampleStates, starting with :get_started.
 
   before do
     Socrates.configure do |config|
-      config.logger          = NullLogger.new
+      config.logger.level    = Logger::FATAL
       config.error_message   = "Whoops! Time for a reboot..."
       config.expired_timeout = 0.1
     end
