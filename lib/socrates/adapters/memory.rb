@@ -1,6 +1,8 @@
+require "socrates/adapters/stubs"
+
 module Socrates
   module Adapters
-    class MemoryAdapter
+    class Memory
       CLIENT_ID = "MEMORY"
 
       attr_reader :history, :dms

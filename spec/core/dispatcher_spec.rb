@@ -2,32 +2,28 @@ require "spec_helper"
 
 require "timecop"
 
-require "socrates/storage/storage"
+require "socrates/storage/memory"
 require "socrates/core/dispatcher"
 require "socrates/sample_states"
-
-class NullLogger < Logger
-  def initialize(*_args)
-  end
-
-  def add(*_args, &_block)
-  end
-end
 
 RSpec.describe Socrates::Core::Dispatcher do
   # This spec runs through the prepackaged conversational ui as defined in SampleStates, starting with :get_started.
 
   before do
     Socrates.configure do |config|
-      config.logger          = NullLogger.new
+      config.logger.level    = Logger::FATAL
       config.error_message   = "Whoops! Time for a reboot..."
       config.expired_timeout = 0.1
     end
 
-    Timecop.travel(Date.parse("2017-04-22"))
+    Timecop.travel(Date.new(2017, 4, 22))
   end
 
-  let(:adapter) { Socrates::Adapters::MemoryAdapter.new }
+  after do
+    Timecop.return
+  end
+
+  let(:adapter) { Socrates::Adapters::Memory.new }
   let(:state_factory) { Socrates::SampleStates::StateFactory.new }
   subject(:dispatcher) { described_class.new(adapter: adapter, state_factory: state_factory) }
 

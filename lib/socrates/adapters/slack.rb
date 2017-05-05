@@ -1,6 +1,8 @@
+require "active_support/core_ext/object"
+
 module Socrates
   module Adapters
-    class SlackAdapter
+    class Slack
       def initialize(real_time_client)
         @real_time_client = real_time_client
       end

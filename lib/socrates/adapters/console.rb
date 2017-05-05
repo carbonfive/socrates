@@ -1,6 +1,8 @@
+require "socrates/adapters/stubs"
+
 module Socrates
   module Adapters
-    class ConsoleAdapter
+    class Console
       CLIENT_ID = "CONSOLE"
 
       attr_accessor :email, :users

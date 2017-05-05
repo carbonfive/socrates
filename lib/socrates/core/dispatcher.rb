@@ -1,8 +1,11 @@
 require "hashie"
+require "active_support/all"
 
+require "socrates/configuration"
 require "socrates/logger"
 require "socrates/string_helpers"
-require "socrates/storage/storage"
+require "socrates/storage/memory"
+require "socrates/core/state"
 require "socrates/core/state_data"
 
 module Socrates
@@ -11,10 +14,10 @@ module Socrates
       def initialize(adapter:, state_factory:, storage: nil)
         @adapter       = adapter
         @state_factory = state_factory
-        @storage       = storage || Socrates::Config.storage || Storage::MemoryStorage.new
+        @storage       = storage || Socrates.config.storage
 
-        @logger        = Socrates::Config.logger || Socrates::Logger.default
-        @error_message = Socrates::Config.error_message || DEFAULT_ERROR_MESSAGE
+        @logger        = Socrates.config.logger
+        @error_message = Socrates.config.error_message || DEFAULT_ERROR_MESSAGE
       end
 
       # rubocop:disable Metrics/AbcSize
@@ -105,7 +108,7 @@ module Socrates
       def state_data_expired?(state_data)
         return unless state_data.timestamp.present?
 
-        state_data.elapsed_time > (Config.expired_timeout || 30.minutes)
+        state_data.elapsed_time > (Socrates.config.expired_timeout || 30.minutes)
       end
 
       def instantiate_state(state_data, context)

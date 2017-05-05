@@ -2,7 +2,9 @@ require "spec_helper"
 
 require "hashie/mash"
 
-RSpec.describe Socrates::Adapters::SlackAdapter do
+require "socrates/adapters/slack"
+
+RSpec.describe Socrates::Adapters::Slack do
   let(:web_client) { double }
   let(:real_time_client) { double(web_client: web_client) }
   subject(:adapter) { described_class.new(real_time_client) }
