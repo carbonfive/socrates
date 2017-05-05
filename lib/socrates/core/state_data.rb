@@ -1,6 +1,5 @@
 require "hashie"
 require "json"
-require "set"
 require "yaml"
 require "active_support/core_ext/time"
 
@@ -14,7 +13,7 @@ module Socrates
         @state_action   = state_action
         @timestamp      = Time.current
         @data           = data
-        @temporary_keys = Set.new(temporary_keys)
+        @temporary_keys = temporary_keys
       end
 
       def elapsed_time
@@ -34,7 +33,7 @@ module Socrates
       end
 
       def has_temporary_key?(key)
-        @temporary_keys.include?(key) == true # This "== true" is necessary, as strange as that may seem.
+        @temporary_keys.include?(key)
       end
 
       def get(key, clear: false)
