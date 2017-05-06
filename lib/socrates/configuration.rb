@@ -1,3 +1,4 @@
+require "active_support/core_ext/time"
 require "socrates/logger"
 require "socrates/storage/memory"
 
