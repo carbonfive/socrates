@@ -4,7 +4,7 @@ module Socrates
   module Storage
     class Redis
       def initialize(url: "redis://localhost")
-        @redis = Redis.new(url: url)
+        @redis = ::Redis.new(url: url)
       end
 
       def has_key?(key)
