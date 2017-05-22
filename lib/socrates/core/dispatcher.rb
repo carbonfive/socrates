@@ -31,7 +31,7 @@ module Socrates
         # In many cases, a two actions will run in this loop: :listen => :ask, but it's possible that a chain of 2 or
         # more :ask actions could run, before stopping at a :listen (and waiting for the next input).
         loop do
-          state_data = fetch_snapshot(client_id)
+          state_data = fetch_state_data(client_id)
           state      = instantiate_state(state_data, context)
 
           args = [state.data.state_action]
@@ -54,7 +54,7 @@ module Socrates
 
           @logger.debug %(#{client_id} transition to :#{state.data.state_id} / :#{state.data.state_action})
 
-          persist_snapshot(client_id, state.data)
+          persist_state_data(client_id, state.data)
 
           # Break from the loop if there's nothing left to do, i.e. no more state transitions.
           break if done_transitioning?(state)
@@ -67,13 +67,13 @@ module Socrates
       DEFAULT_ERROR_MESSAGE = "Sorry, an error occurred. We'll have to start over..."
 
       # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
-      def fetch_snapshot(client_id)
+      def fetch_state_data(client_id)
         if @storage.has_key?(client_id)
           begin
             snapshot   = @storage.get(client_id)
             state_data = StateData.deserialize(snapshot)
           rescue => e
-            @logger.warn "Error while fetching snapshot for client id '#{client_id}', resetting state: #{e.message}"
+            @logger.warn "Error while fetching state_data for client id '#{client_id}', resetting state: #{e.message}"
             @logger.warn e
           end
         end
@@ -100,7 +100,7 @@ module Socrates
       end
       # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
-      def persist_snapshot(client_id, state_data)
+      def persist_state_data(client_id, state_data)
         state_data.reset_elapsed_time
         @storage.put(client_id, state_data.serialize)
       end
@@ -132,7 +132,7 @@ module Socrates
         state.data.state_id     = nil
         state.data.state_action = nil
 
-        persist_snapshot(client_id, state.data)
+        persist_state_data(client_id, state.data)
       end
     end
   end
