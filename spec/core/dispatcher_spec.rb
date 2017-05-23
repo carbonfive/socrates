@@ -13,7 +13,7 @@ RSpec.describe Socrates::Core::Dispatcher do
     Socrates.configure do |config|
       config.logger.level    = Logger::FATAL
       config.error_message   = "Whoops! Time for a reboot..."
-      config.expired_timeout = 0.1
+      config.expired_timeout = 120
     end
 
     Timecop.travel(Date.new(2017, 4, 22))
@@ -62,7 +62,7 @@ RSpec.describe Socrates::Core::Dispatcher do
       expect(adapter.last_message).to eq "First things first, what's your name?"
 
       # Trigger an expiration.
-      sleep 0.2
+      Timecop.travel(121.seconds.from_now)
       dispatcher.dispatch("Bob Smith")
       expect(adapter.history[-2]).to eq "I've forgotten what we're talking about, let's start over."
     end
