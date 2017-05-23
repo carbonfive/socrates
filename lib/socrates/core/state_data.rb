@@ -9,11 +9,10 @@ module Socrates
       attr_accessor :state_id, :state_action, :last_interaction_timestamp
 
       def initialize(state_id: nil, state_action: nil, data: {}, temporary_keys: [])
-        @state_id                   = state_id
-        @state_action               = state_action
-        @last_interaction_timestamp = Time.current
-        @data                       = data
-        @temporary_keys             = temporary_keys
+        @state_id       = state_id
+        @state_action   = state_action
+        @data           = data
+        @temporary_keys = temporary_keys
       end
 
       def elapsed_time
