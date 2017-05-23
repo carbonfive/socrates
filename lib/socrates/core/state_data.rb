@@ -8,11 +8,11 @@ module Socrates
     class StateData
       attr_accessor :state_id, :state_action, :last_interaction_timestamp
 
-      def initialize(state_id: nil, state_action: nil, data: {}, temporary_keys: [])
+      def initialize(state_id: nil, state_action: nil, data: {})
         @state_id       = state_id
         @state_action   = state_action
         @data           = data
-        @temporary_keys = temporary_keys
+        @temporary_keys = []
       end
 
       def elapsed_time
