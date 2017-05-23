@@ -106,7 +106,7 @@ module Socrates
       end
 
       def state_data_expired?(state_data)
-        return unless state_data.timestamp.present?
+        return false unless state_data.timestamp.present?
 
         state_data.elapsed_time > (Socrates.config.expired_timeout || 30.minutes)
       end
