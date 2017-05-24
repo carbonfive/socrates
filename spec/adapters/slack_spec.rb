@@ -9,31 +9,64 @@ RSpec.describe Socrates::Adapters::Slack do
   let(:real_time_client) { double(web_client: web_client) }
   subject(:adapter) { described_class.new(real_time_client) }
 
-  describe "#client_id_from_context" do
-    it "raises an exception if the context is nil" do
+  describe "#client_id_from" do
+    it "raises an exception if context and user are nil" do
       expect {
-        adapter.client_id_from_context(nil)
-      }.to raise_error ArgumentError, "Context cannot be nil"
+        adapter.client_id_from
+      }.to raise_error ArgumentError, "Must provide one of :context or :user"
+
+      expect {
+        adapter.client_id_from(context: nil, user: nil)
+      }.to raise_error ArgumentError, "Must provide one of :context or :user"
     end
 
-    it "raises an exception if the context does not contain a user" do
+    it "raises an exception if the context does not respond to :user" do
       expect {
-        adapter.client_id_from_context(Hashie::Mash.new)
-      }.to raise_error ArgumentError, "Expected context to respond to :user"
+        adapter.client_id_from(context: Hashie::Mash.new)
+      }.to raise_error ArgumentError, "Expected :context to respond to :user"
     end
 
-    it "extracts the user id from the context" do
+    it "raises an exception if the user does not respond to :id" do
+      expect {
+        adapter.client_id_from(user: Hashie::Mash.new)
+      }.to raise_error ArgumentError, "Expected :user to respond to :id"
+    end
+
+    it "extracts the user from the context" do
       slack_context = Hashie::Mash.new(user: "U123ABC")
-      expect(adapter.client_id_from_context(slack_context)).to eq "U123ABC"
+      expect(adapter.client_id_from(context: slack_context)).to eq "U123ABC"
+    end
+
+    it "extracts the id from the user" do
+      slack_user = Hashie::Mash.new(id: "U123")
+      expect(adapter.client_id_from(user: slack_user)).to eq "U123"
+    end
+  end
+
+  describe "#channel_from" do
+    it "raises an exception if context and user are nil" do
+      expect {
+        adapter.channel_from
+      }.to raise_error ArgumentError, "Must provide one of :context or :user"
+
+      expect {
+        adapter.channel_from(context: nil, user: nil)
+      }.to raise_error ArgumentError, "Must provide one of :context or :user"
+    end
+
+    it "raises an exception if the context does not respond to :channel" do
+      expect {
+        adapter.channel_from(context: Hashie::Mash.new)
+      }.to raise_error ArgumentError, "Expected :context to respond to :channel"
     end
   end
 
   describe "#send_message" do
-    it "raises an exception when the context does not contain a channel" do
-      expect {
-        adapter.send_message("yo", context: Hashie::Mash.new)
-      }.to raise_error ArgumentError, "Expected context to respond to :channel"
-    end
+    # it "raises an exception when the context does not contain a channel" do
+    #   expect {
+    #     adapter.send_message("yo", "C1")
+    #   }.to raise_error ArgumentError, "Expected :context to respond to :channel"
+    # end
   end
 
   describe "#send_direct_message" do
@@ -70,8 +103,8 @@ RSpec.describe Socrates::Adapters::Slack do
   describe "#lookup_email" do
     it "raises an exception when context does not respond to :user" do
       expect {
-        adapter.client_id_from_context(Hashie::Mash.new)
-      }.to raise_error ArgumentError, "Expected context to respond to :user"
+        adapter.lookup_email(context: Hashie::Mash.new)
+      }.to raise_error ArgumentError, "Expected :context to respond to :user"
     end
 
     it "returns the user's email address when it's present in the profile" do

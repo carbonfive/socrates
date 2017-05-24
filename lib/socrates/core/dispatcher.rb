@@ -20,11 +20,28 @@ module Socrates
         @error_message = Socrates.config.error_message || DEFAULT_ERROR_MESSAGE
       end
 
-      # rubocop:disable Metrics/AbcSize
       def dispatch(message, context: {})
-        message = message.strip
+        client_id = @adapter.client_id_from(context: context)
+        channel   = @adapter.channel_from(context: context)
 
-        client_id = @adapter.client_id_from_context(context)
+        do_dispatch(message, client_id, channel)
+      end
+
+      # def start_conversation(user, state_id)
+      #   client_id = @adapter.client_id_from(user: user)
+      #   channel   = @adapter.channel_from(user: user)
+      #
+      #   # Update the state data to match the request.
+      #
+      #   do_dispatch(nil, client_id, channel)
+      # end
+
+      private
+
+      DEFAULT_ERROR_MESSAGE = "Sorry, an error occurred. We'll have to start over..."
+
+      def do_dispatch(message, client_id, channel)
+        message = message&.strip
 
         @logger.info %(#{client_id} recv: "#{message}")
 
@@ -32,7 +49,7 @@ module Socrates
         # more :ask actions could run, before stopping at a :listen (and waiting for the next input).
         loop do
           state_data = fetch_state_data(client_id)
-          state      = instantiate_state(state_data, context)
+          state      = instantiate_state(state_data, channel)
 
           args = [state.data.state_action]
           args << message if state.data.state_action == :listen
@@ -44,7 +61,7 @@ module Socrates
           begin
             state.send(*args)
           rescue => e
-            handle_action_error(e, client_id, state, context)
+            handle_action_error(e, client_id, state, channel)
             return
           end
 
@@ -60,11 +77,6 @@ module Socrates
           break if done_transitioning?(state)
         end
       end
-      # rubocop:enable Metrics/AbcSize
-
-      private
-
-      DEFAULT_ERROR_MESSAGE = "Sorry, an error occurred. We'll have to start over..."
 
       # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
       def fetch_state_data(client_id)
@@ -111,8 +123,8 @@ module Socrates
         state_data.elapsed_time > (Socrates.config.expired_timeout || 30.minutes)
       end
 
-      def instantiate_state(state_data, context)
-        @state_factory.build(state_data: state_data, adapter: @adapter, context: context)
+      def instantiate_state(state_data, channel)
+        @state_factory.build(state_data: state_data, adapter: @adapter, channel: channel)
       end
 
       def done_transitioning?(state)
@@ -123,11 +135,11 @@ module Socrates
         state.data.state_id.nil? || state.data.state_id == State::END_OF_CONVERSATION
       end
 
-      def handle_action_error(e, client_id, state, context)
+      def handle_action_error(e, client_id, state, channel)
         @logger.warn "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{e.message}"
         @logger.warn e
 
-        @adapter.send_message(@error_message, context: context)
+        @adapter.send_message(@error_message, channel)
         state.data.clear
         state.data.state_id     = nil
         state.data.state_action = nil

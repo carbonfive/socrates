@@ -6,21 +6,34 @@ module Socrates
       include StubUserDirectory
 
       CLIENT_ID = "CONSOLE"
+      CHANNEL   = "C1"
 
       def initialize(name: "@socrates")
         super()
         @name = name
       end
 
-      def client_id_from_context(_context)
+      def client_id_from(context: nil, user: nil)
+        raise ArgumentError, "Must provide one of :context or :user" if context.nil? && user.nil?
+
         CLIENT_ID
       end
 
-      def send_message(message, *)
+      def channel_from(context: nil, user: nil)
+        raise ArgumentError, "Must provide one of :context or :user" if context.nil? && user.nil?
+
+        CHANNEL
+      end
+
+      def send_message(message, channel)
+        raise ArgumentError, "Channel is required" unless channel.present?
+
         puts "\n#{colorize(@name, "32;1")}: #{message}"
       end
 
-      def send_direct_message(message, user, *)
+      def send_direct_message(message, user)
+        raise ArgumentError, "User is required" unless user.present?
+
         name =
           if user.respond_to?(:name)
             user.name
