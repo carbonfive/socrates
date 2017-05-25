@@ -36,6 +36,24 @@ module Socrates
       #   do_dispatch(nil, client_id, channel)
       # end
 
+      def conversation_state(user)
+        client_id = @adapter.client_id_from(user: user)
+
+        return nil unless @storage.has_key?(client_id)
+
+        begin
+          snapshot   = @storage.get(client_id)
+          state_data = StateData.deserialize(snapshot)
+          state_data = nil if state_data_expired?(state_data)
+        rescue => e
+          @logger.warn "Error while fetching state_data for client id '#{client_id}'."
+          @logger.warn e
+          state_data = nil
+        end
+
+        state_data
+      end
+
       private
 
       DEFAULT_ERROR_MESSAGE = "Sorry, an error occurred. We'll have to start over..."
