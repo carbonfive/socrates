@@ -37,7 +37,7 @@ module Socrates
       end
 
       def lookup_user(email:)
-        users.find { |user| user.profile&.email == email }
+        users.find { |user| email == user.profile&.email }
       end
 
       def lookup_email(*)
