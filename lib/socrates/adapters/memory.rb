@@ -8,12 +8,11 @@ module Socrates
       CLIENT_ID = "MEMORY"
       CHANNEL   = "C1"
 
-      attr_reader :history, :dms
+      attr_reader :history
 
       def initialize
         super()
-        @history = []
-        @dms     = Hash.new { |hash, key| hash[key] = [] }
+        @history = Hash.new { |hash, key| hash[key] = [] }
       end
 
       def client_id_from(context: nil, user: nil)
@@ -25,25 +24,45 @@ module Socrates
       def channel_from(context: nil, user: nil)
         raise ArgumentError, "Must provide one of :context or :user" if context.nil? && user.nil?
 
-        CHANNEL
+        user.nil? ? CHANNEL : users_channel(user)
       end
 
       def send_message(message, channel)
         raise ArgumentError, "Channel is required" unless channel.present?
 
-        @history << message
+        @history[channel] << message
       end
 
       def send_direct_message(message, user)
         raise ArgumentError, "User is required" unless user.present?
 
-        user = user.id if user.respond_to?(:id)
-
-        @dms[user] << message
+        @history[users_channel(user)] << message
       end
 
-      def last_message
-        @history.last
+      #
+      # Methods for fetching messages and dms in specs...
+      #
+
+      def msgs
+        @history[CHANNEL]
+      end
+
+      def last_msg
+        msgs[-1]
+      end
+
+      def dms(user)
+        @history[users_channel(user)]
+      end
+
+      def last_dm(user)
+        dms(user)[-1]
+      end
+
+      private
+
+      def users_channel(user)
+        user.respond_to?(:id) ? user.id : user
       end
     end
   end

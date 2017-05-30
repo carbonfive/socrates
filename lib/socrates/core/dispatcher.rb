@@ -27,14 +27,20 @@ module Socrates
         do_dispatch(message, client_id, channel)
       end
 
-      # def start_conversation(user, state_id)
-      #   client_id = @adapter.client_id_from(user: user)
-      #   channel   = @adapter.channel_from(user: user)
-      #
-      #   # Update the state data to match the request.
-      #
-      #   do_dispatch(nil, client_id, channel)
-      # end
+      def start_conversation(user, state_id)
+        client_id = @adapter.client_id_from(user: user)
+        channel   = @adapter.channel_from(user: user)
+
+        return false unless conversation_state(user).nil?
+
+        # Create state data to match the request.
+        state_data = Socrates::Core::StateData.new(state_id: state_id, state_action: :ask)
+
+        persist_state_data(client_id, state_data)
+
+        do_dispatch(nil, client_id, channel)
+        true
+      end
 
       def conversation_state(user)
         client_id = @adapter.client_id_from(user: user)

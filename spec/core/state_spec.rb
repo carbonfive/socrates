@@ -23,7 +23,7 @@ RSpec.describe Socrates::Core::State do
       it "passes the string as-is to the adapter for sending" do
         state.respond message: "ABC987"
 
-        expect(adapter.last_message).to eq "ABC987"
+        expect(adapter.last_msg).to eq "ABC987"
       end
     end
 
