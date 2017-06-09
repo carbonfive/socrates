@@ -46,14 +46,14 @@ module Socrates
 
         return if message.empty?
 
-        @logger.info %(#{@channel} send: "#{format_for_logging(message)}")
+        @logger.info %Q(#{@channel} send: "#{format_for_logging(message)}")
         @adapter.send_message(message, @channel)
       end
 
       def send_message(to:, message:)
         displayable_to = to.respond_to?(:id) ? to.id : to
 
-        @logger.info %(#{@channel} send direct to #{displayable_to}: "#{format_for_logging(message)}")
+        @logger.info %Q(#{@channel} send direct to #{displayable_to}: "#{format_for_logging(message)}")
         @adapter.send_direct_message(message, to)
       end
 

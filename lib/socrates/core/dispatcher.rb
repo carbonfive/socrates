@@ -67,7 +67,7 @@ module Socrates
       def do_dispatch(message, client_id, channel)
         message = message&.strip
 
-        @logger.info %(#{client_id} recv: "#{message}")
+        @logger.info %Q(#{client_id} recv: "#{message}")
 
         # In many cases, a two actions will run in this loop: :listen => :ask, but it's possible that a chain of 2 or
         # more :ask actions could run, before stopping at a :listen (and waiting for the next input).
@@ -78,8 +78,8 @@ module Socrates
           args = [state.data.state_action]
           args << message if state.data.state_action == :listen
 
-          msg = %(#{client_id} processing :#{state.data.state_id} / :#{args.first})
-          msg += %( / message: "#{args.second}") if args.count > 1
+          msg = "#{client_id} processing :#{state.data.state_id} / :#{args.first}"
+          msg += %Q( / message: "#{args.second}") if args.count > 1
           @logger.debug msg
 
           begin
@@ -93,7 +93,7 @@ module Socrates
           state.data.state_id     = state.next_state_id
           state.data.state_action = state.next_state_action
 
-          @logger.debug %(#{client_id} transition to :#{state.data.state_id} / :#{state.data.state_action})
+          @logger.debug "#{client_id} transition to :#{state.data.state_id} / :#{state.data.state_action}"
 
           persist_state_data(client_id, state.data)
 
