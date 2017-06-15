@@ -9,6 +9,7 @@ module Socrates
       CHANNEL   = "C1"
 
       attr_reader :history
+      attr_accessor :client_id
 
       def initialize
         super()
@@ -18,7 +19,7 @@ module Socrates
       def client_id_from(context: nil, user: nil)
         raise ArgumentError, "Must provide one of :context or :user" if context.nil? && user.nil?
 
-        CLIENT_ID
+        @client_id || CLIENT_ID
       end
 
       def channel_from(context: nil, user: nil)
