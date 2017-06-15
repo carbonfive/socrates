@@ -20,31 +20,72 @@ module Socrates
         @error_message = Socrates.config.error_message || DEFAULT_ERROR_MESSAGE
       end
 
-      # rubocop:disable Metrics/AbcSize
       def dispatch(message, context: {})
-        message = message.strip
+        client_id = @adapter.client_id_from(context: context)
+        channel   = @adapter.channel_from(context: context)
 
-        client_id = @adapter.client_id_from_context(context)
+        do_dispatch(message, client_id, channel)
+      end
 
-        @logger.info %(#{client_id} recv: "#{message}")
+      def start_conversation(user, state_id)
+        client_id = @adapter.client_id_from(user: user)
+        channel   = @adapter.channel_from(user: user)
+
+        return false unless conversation_state(user).nil?
+
+        # Create state data to match the request.
+        state_data = Socrates::Core::StateData.new(state_id: state_id, state_action: :ask)
+
+        persist_state_data(client_id, state_data)
+
+        do_dispatch(nil, client_id, channel)
+        true
+      end
+
+      def conversation_state(user)
+        client_id = @adapter.client_id_from(user: user)
+
+        return nil unless @storage.has_key?(client_id)
+
+        begin
+          snapshot   = @storage.get(client_id)
+          state_data = StateData.deserialize(snapshot)
+          state_data = nil if state_data_expired?(state_data)
+        rescue => e
+          @logger.warn "Error while fetching state_data for client id '#{client_id}'."
+          @logger.warn e
+          state_data = nil
+        end
+
+        state_data
+      end
+
+      private
+
+      DEFAULT_ERROR_MESSAGE = "Sorry, an error occurred. We'll have to start over..."
+
+      def do_dispatch(message, client_id, channel)
+        message = message&.strip
+
+        @logger.info %Q(#{client_id} recv: "#{message}")
 
         # In many cases, a two actions will run in this loop: :listen => :ask, but it's possible that a chain of 2 or
         # more :ask actions could run, before stopping at a :listen (and waiting for the next input).
         loop do
           state_data = fetch_state_data(client_id)
-          state      = instantiate_state(state_data, context)
+          state      = instantiate_state(state_data, channel)
 
           args = [state.data.state_action]
           args << message if state.data.state_action == :listen
 
-          msg = %(#{client_id} processing :#{state.data.state_id} / :#{args.first})
-          msg += %( / message: "#{args.second}") if args.count > 1
+          msg = "#{client_id} processing :#{state.data.state_id} / :#{args.first}"
+          msg += %Q( / message: "#{args.second}") if args.count > 1
           @logger.debug msg
 
           begin
             state.send(*args)
           rescue => e
-            handle_action_error(e, client_id, state, context)
+            handle_action_error(e, client_id, state, channel)
             return
           end
 
@@ -52,7 +93,7 @@ module Socrates
           state.data.state_id     = state.next_state_id
           state.data.state_action = state.next_state_action
 
-          @logger.debug %(#{client_id} transition to :#{state.data.state_id} / :#{state.data.state_action})
+          @logger.debug "#{client_id} transition to :#{state.data.state_id} / :#{state.data.state_action}"
 
           persist_state_data(client_id, state.data)
 
@@ -60,11 +101,6 @@ module Socrates
           break if done_transitioning?(state)
         end
       end
-      # rubocop:enable Metrics/AbcSize
-
-      private
-
-      DEFAULT_ERROR_MESSAGE = "Sorry, an error occurred. We'll have to start over..."
 
       # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
       def fetch_state_data(client_id)
@@ -106,13 +142,13 @@ module Socrates
       end
 
       def state_data_expired?(state_data)
-        return unless state_data.timestamp.present?
+        return false unless state_data.last_interaction_timestamp.present?
 
         state_data.elapsed_time > (Socrates.config.expired_timeout || 30.minutes)
       end
 
-      def instantiate_state(state_data, context)
-        @state_factory.build(state_data: state_data, adapter: @adapter, context: context)
+      def instantiate_state(state_data, channel)
+        @state_factory.build(state_data: state_data, adapter: @adapter, channel: channel)
       end
 
       def done_transitioning?(state)
@@ -123,11 +159,11 @@ module Socrates
         state.data.state_id.nil? || state.data.state_id == State::END_OF_CONVERSATION
       end
 
-      def handle_action_error(e, client_id, state, context)
+      def handle_action_error(e, client_id, state, channel)
         @logger.warn "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{e.message}"
         @logger.warn e
 
-        @adapter.send_message(@error_message, context: context)
+        @adapter.send_message(@error_message, channel)
         state.data.clear
         state.data.state_id     = nil
         state.data.state_action = nil

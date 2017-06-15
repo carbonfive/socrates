@@ -20,6 +20,10 @@ module Socrates
       def put(key, value)
         @memory[key] = value
       end
+
+      def clear_all
+        @memory.clear
+      end
     end
   end
 end

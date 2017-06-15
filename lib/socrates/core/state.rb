@@ -11,10 +11,10 @@ module Socrates
     module State
       attr_reader :data, :context
 
-      def initialize(data: StateData.new, adapter:, context: nil)
+      def initialize(data: StateData.new, adapter:, channel:)
         @data              = data
         @adapter           = adapter
-        @context           = context
+        @channel           = channel
         @next_state_id     = nil
         @next_state_action = nil
         @logger            = Socrates.config.logger || Socrates::Logger.default
@@ -46,15 +46,15 @@ module Socrates
 
         return if message.empty?
 
-        @logger.info %(#{client_id} send: "#{format_for_logging(message)}")
-        @adapter.send_message(message, context: @context)
+        @logger.info %Q(#{@channel} send: "#{format_for_logging(message)}")
+        @adapter.send_message(message, @channel)
       end
 
       def send_message(to:, message:)
         displayable_to = to.respond_to?(:id) ? to.id : to
 
-        @logger.info %(#{client_id} send direct to #{displayable_to}: "#{format_for_logging(message)}")
-        @adapter.send_direct_message(message, to, context: @context)
+        @logger.info %Q(#{@channel} send direct to #{displayable_to}: "#{format_for_logging(message)}")
+        @adapter.send_direct_message(message, to)
       end
 
       def transition_to(state_id, action: nil, data: {})
@@ -100,10 +100,6 @@ module Socrates
 
       def next_action(current_action)
         (%i[ask listen] - [current_action]).first
-      end
-
-      def client_id
-        @adapter.client_id_from_context(@context)
       end
 
       def format_for_logging(message)

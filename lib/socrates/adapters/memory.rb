@@ -6,32 +6,64 @@ module Socrates
       include StubUserDirectory
 
       CLIENT_ID = "MEMORY"
+      CHANNEL   = "C1"
 
-      attr_reader :history, :dms
+      attr_reader :history
+      attr_accessor :client_id
 
       def initialize
         super()
-
-        @history = []
-        @dms     = Hash.new { |hash, key| hash[key] = [] }
+        @history = Hash.new { |hash, key| hash[key] = [] }
       end
 
-      def client_id_from_context(_context)
-        CLIENT_ID
+      def client_id_from(context: nil, user: nil)
+        raise ArgumentError, "Must provide one of :context or :user" if context.nil? && user.nil?
+
+        @client_id || CLIENT_ID
       end
 
-      def send_message(message, *)
-        @history << message
+      def channel_from(context: nil, user: nil)
+        raise ArgumentError, "Must provide one of :context or :user" if context.nil? && user.nil?
+
+        user.nil? ? CHANNEL : users_channel(user)
       end
 
-      def send_direct_message(message, user, *)
-        user = user.id if user.respond_to?(:id)
+      def send_message(message, channel)
+        raise ArgumentError, "Channel is required" unless channel.present?
 
-        @dms[user] << message
+        @history[channel] << message
       end
 
-      def last_message
-        @history.last
+      def send_direct_message(message, user)
+        raise ArgumentError, "User is required" unless user.present?
+
+        @history[users_channel(user)] << message
+      end
+
+      #
+      # Methods for fetching messages and dms in specs...
+      #
+
+      def msgs
+        @history[CHANNEL]
+      end
+
+      def last_msg
+        msgs[-1]
+      end
+
+      def dms(user)
+        @history[users_channel(user)]
+      end
+
+      def last_dm(user)
+        dms(user)[-1]
+      end
+
+      private
+
+      def users_channel(user)
+        user.respond_to?(:id) ? user.id : user
       end
     end
   end

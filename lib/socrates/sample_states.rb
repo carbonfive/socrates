@@ -14,11 +14,11 @@ module Socrates
         :expired
       end
 
-      def build(state_data:, adapter:, context: nil)
+      def build(state_data:, adapter:, channel:)
         classname = StringHelpers.underscore_to_classname(state_data.state_id)
 
         Object.const_get("Socrates::SampleStates::#{classname}")
-          .new(data: state_data, adapter: adapter, context: context)
+          .new(data: state_data, adapter: adapter, channel: channel)
       end
     end
 

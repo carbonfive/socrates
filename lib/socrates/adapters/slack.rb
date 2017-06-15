@@ -7,20 +7,35 @@ module Socrates
         @real_time_client = real_time_client
       end
 
-      def client_id_from_context(context)
-        raise ArgumentError, "Context cannot be nil" if context.nil?
-        raise ArgumentError, "Expected context to respond to :user" unless context.respond_to?(:user)
-
-        context.user
+      def client_id_from(context: nil, user: nil)
+        unless context.nil?
+          raise ArgumentError, "Expected :context to respond to :user" unless context.respond_to?(:user)
+          return context.user
+        end
+        unless user.nil?
+          raise ArgumentError, "Expected :user to respond to :id" unless user.respond_to?(:id)
+          return user.id
+        end
+        raise ArgumentError, "Must provide one of :context or :user"
       end
 
-      def send_message(message, context:)
-        raise ArgumentError, "Expected context to respond to :channel" unless context.respond_to?(:channel)
-
-        @real_time_client.message(text: message, channel: context.channel)
+      def channel_from(context: nil, user: nil)
+        unless context.nil?
+          raise ArgumentError, "Expected :context to respond to :channel" unless context.respond_to?(:channel)
+          return context.channel
+        end
+        unless user.nil?
+          # raise ArgumentError, "Expected :user to respond to :id" unless user.respond_to?(:id)
+          return lookup_im_channel(user)
+        end
+        raise ArgumentError, "Must provide one of :context or :user"
       end
 
-      def send_direct_message(message, user, *)
+      def send_message(message, channel)
+        @real_time_client.message(text: message, channel: channel)
+      end
+
+      def send_direct_message(message, user)
         raise ArgumentError, "Expected user to respond to :id" unless user.respond_to?(:id)
 
         im_channel = lookup_im_channel(user)
@@ -38,7 +53,7 @@ module Socrates
       end
 
       def lookup_email(context:)
-        raise ArgumentError, "Expected context to respond to :user" unless context.respond_to?(:user)
+        raise ArgumentError, "Expected :context to respond to :user" unless context.respond_to?(:user)
 
         client = @real_time_client.web_client
         info   = client.users_info(user: context.user)
