@@ -52,6 +52,11 @@ module Socrates
         end
       end
 
+      # Note: this triggers a call to the Slack API which makes it ill-suited for use within a loop.
+      def lookup_user(email:)
+        users_list.members.find { |user| email == user.profile&.email }
+      end
+
       def lookup_email(context:)
         raise ArgumentError, "Expected :context to respond to :user" unless context.respond_to?(:user)
 
