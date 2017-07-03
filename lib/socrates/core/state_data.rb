@@ -1,11 +1,14 @@
 require "hashie"
 require "json"
 require "yaml"
-require "active_support/core_ext/time"
+require "active_support/core_ext/numeric/time"
+require "socrates/configuration"
 
 module Socrates
   module Core
     class StateData
+      END_OF_CONVERSATION = :__end__
+
       attr_accessor :state_id, :state_action, :last_interaction_timestamp
 
       def initialize(state_id: nil, state_action: nil, data: {})
@@ -13,6 +16,16 @@ module Socrates
         @state_action   = state_action
         @data           = data
         @temporary_keys = []
+      end
+
+      def finished?
+        @state_id.nil? || @state_id == END_OF_CONVERSATION
+      end
+
+      def expired?
+        return false unless last_interaction_timestamp.present?
+
+        elapsed_time > (Socrates.config.expired_timeout || 30.minutes)
       end
 
       def elapsed_time

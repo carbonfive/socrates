@@ -14,10 +14,14 @@ class StateA
 end
 
 RSpec.describe Socrates::Core::State do
+  let(:user) do
+    Socrates::Adapters::User.new(1, "Bob Smith", 0, Socrates::Adapters::Profile.new("Bob", "Smith", "bob@example.com"))
+  end
+  let(:adapter) { Socrates::Adapters::Memory.new }
+
   describe "#respond" do
-    let(:adapter) { Socrates::Adapters::Memory.new }
     let(:state_data) { Socrates::Core::StateData.new(state_id: :state_a, state_action: :ask) }
-    subject(:state) { StateA.new(adapter: adapter, data: state_data, channel: "C1") }
+    subject(:state) { StateA.new(adapter: adapter, data: state_data, channel: "C1", user: user) }
 
     context "when given a :message" do
       it "passes the string as-is to the adapter for sending" do
@@ -55,7 +59,7 @@ RSpec.describe Socrates::Core::State do
     ].each do |current, target, expected|
       it "transitions from #{current} to #{expected} when given #{target}" do
         state_data = Socrates::Core::StateData.new(state_id: current[0], state_action: current[1])
-        state      = StateA.new(adapter: Socrates::Adapters::Memory.new, data: state_data, channel: "C1")
+        state      = StateA.new(adapter: adapter, data: state_data, channel: "C1", user: user)
 
         state.transition_to target[0], action: target[1]
 
@@ -67,7 +71,7 @@ RSpec.describe Socrates::Core::State do
 
   describe "#repeat_action" do
     let(:state_data) { Socrates::Core::StateData.new(state_id: :state_a, state_action: :ask) }
-    subject(:state) { StateA.new(adapter: Socrates::Adapters::Memory.new, data: state_data, channel: "C1") }
+    subject(:state) { StateA.new(adapter: adapter, data: state_data, channel: "C1", user: user) }
 
     it "sets the next state and action to the current state and action (so that it runs again)" do
       state.repeat_action
@@ -80,13 +84,13 @@ RSpec.describe Socrates::Core::State do
   describe "#end_conversation" do
     let(:data) { { name: "Fitzgibbons", age: 42 } }
     let(:state_data) { Socrates::Core::StateData.new(state_id: :state_a, state_action: :ask, data: data) }
-    subject(:state) { StateA.new(adapter: Socrates::Adapters::Memory.new, data: state_data, channel: "C1") }
+    subject(:state) { StateA.new(adapter: adapter, data: state_data, channel: "C1", user: user) }
 
     it "sets the next state and action to nil, to indicate the flow is over " do
       state.end_conversation
 
-      expect(state.next_state_id).to eq described_class::END_OF_CONVERSATION
-      expect(state.next_state_action).to eq described_class::END_OF_CONVERSATION
+      expect(state.next_state_id).to eq Socrates::Core::StateData::END_OF_CONVERSATION
+      expect(state.next_state_action).to eq Socrates::Core::StateData::END_OF_CONVERSATION
     end
 
     it "clears out the state data" do

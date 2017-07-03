@@ -28,6 +28,10 @@ module Socrates
         user.nil? ? CHANNEL : users_channel(user)
       end
 
+      def user_from(*)
+        @user
+      end
+
       def send_message(message, channel)
         raise ArgumentError, "Channel is required" unless channel.present?
 

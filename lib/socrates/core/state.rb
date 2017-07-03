@@ -11,10 +11,11 @@ module Socrates
     module State
       attr_reader :data, :context
 
-      def initialize(data: StateData.new, adapter:, channel:)
+      def initialize(data: StateData.new, adapter:, channel:, user:)
         @data              = data
         @adapter           = adapter
         @channel           = channel
+        @user              = user
         @next_state_id     = nil
         @next_state_action = nil
         @logger            = Socrates.config.logger || Socrates::Logger.default
@@ -83,7 +84,7 @@ module Socrates
       def end_conversation
         @data.clear
 
-        transition_to END_OF_CONVERSATION, action: END_OF_CONVERSATION
+        transition_to StateData::END_OF_CONVERSATION, action: StateData::END_OF_CONVERSATION
       end
 
       def ask
@@ -95,8 +96,6 @@ module Socrates
       end
 
       private
-
-      END_OF_CONVERSATION = :__end__
 
       def next_action(current_action)
         (%i[ask listen] - [current_action]).first

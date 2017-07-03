@@ -20,7 +20,7 @@ module Socrates
     # to be used by stubbed versions of adapters (like Console, Memory, etc).
     #
     module StubUserDirectory
-      attr_accessor :email, :users
+      attr_accessor :user, :users
 
       def initialize
         @users = []
