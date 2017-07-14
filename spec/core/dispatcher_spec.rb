@@ -136,12 +136,14 @@ RSpec.describe Socrates::Core::Dispatcher do
           dispatcher.dispatch("Mister Mister") # leaves conversation in the :ask_for_birth_date state
         end
 
-        it "returns false" do
-          expect(dispatcher.start_conversation(user, :ask_for_name)).to be false
+        it "returns true" do
+          expect(dispatcher.start_conversation(user, :ask_for_name)).to be true
         end
 
-        it "does not change the state" do
-          expect(dispatcher.conversation_state(user).state_id).to eq :ask_for_birth_date
+        it "changes the state" do
+          dispatcher.start_conversation(user, :ask_for_name)
+
+          expect(dispatcher.conversation_state(user).state_id).to eq :ask_for_name
         end
       end
     end
@@ -161,6 +163,19 @@ RSpec.describe Socrates::Core::Dispatcher do
           dispatcher.dispatch("age")
           dispatcher.dispatch("Mister Mister")
           Timecop.travel(121.seconds.from_now)
+        end
+
+        it "returns nil" do
+          state = dispatcher.conversation_state(user)
+          expect(state).to be_nil
+        end
+      end
+
+      context "when the user's conversation has finished" do
+        before do
+          dispatcher.dispatch("age")
+          dispatcher.dispatch("Mister Mister")
+          dispatcher.dispatch("10/20/2000")
         end
 
         it "returns nil" do

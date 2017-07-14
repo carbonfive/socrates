@@ -31,6 +31,15 @@ module Socrates
         raise ArgumentError, "Must provide one of :context or :user"
       end
 
+      def user_from(context:)
+        raise ArgumentError, "Must provide a :context" if context.nil?
+        raise ArgumentError, "Expected :context to respond to :user" unless context.respond_to?(:user)
+
+        client = @real_time_client.web_client
+        info   = client.users_info(user: context.user)
+        info.present? ? info.user : nil
+      end
+
       def send_message(message, channel)
         @real_time_client.message(text: message, channel: channel)
       end

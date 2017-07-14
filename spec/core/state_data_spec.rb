@@ -5,7 +5,59 @@ require "socrates/core/state_data"
 TestWidget = Struct.new(:id, :name, :active)
 
 RSpec.describe Socrates::Core::StateData do
+  before do
+    Socrates.configure do |config|
+      config.expired_timeout = 120
+    end
+  end
+
   subject(:data) { described_class.new(data: { a: 100, b: { b1: "abc", b2: "xyz" } }) }
+
+  describe "#finished?" do
+    subject { described_class.new(state_id: state_id).finished? }
+
+    context "when the state_id is nil" do
+      let(:state_id) { nil }
+
+      it { is_expected.to be true }
+    end
+
+    context "when the state_id is END_OF_CONVERSATION" do
+      let(:state_id) { described_class::END_OF_CONVERSATION }
+
+      it { is_expected.to be true }
+    end
+
+    context "when the state_id is anything else" do
+      let(:state_id) { :something_else }
+
+      it { is_expected.to be false }
+    end
+  end
+
+  describe "#expired?" do
+    subject do
+      described_class.new.tap { |state_data| state_data.last_interaction_timestamp = last_interaction }.expired?
+    end
+
+    context "when there has been no last interaction" do
+      let(:last_interaction) { nil }
+
+      it { is_expected.to be false } # TODO: Really?
+    end
+
+    context "when the last interaction was a while ago" do
+      let(:last_interaction) { 121.seconds.ago }
+
+      it { is_expected.to be true }
+    end
+
+    context "when the last interaction is within the threshold" do
+      let(:last_interaction) { 119.seconds.ago }
+
+      it { is_expected.to be false }
+    end
+  end
 
   describe "#keys" do
     it "returns an array of keys" do

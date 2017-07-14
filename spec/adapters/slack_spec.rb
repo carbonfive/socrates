@@ -61,6 +61,20 @@ RSpec.describe Socrates::Adapters::Slack do
     end
   end
 
+  describe "#user_from" do
+    it "raises an exception if context is nil" do
+      expect {
+        adapter.user_from(context: nil)
+      }.to raise_error ArgumentError, "Must provide a :context"
+    end
+
+    it "raises an exception if the context does not respond to :user" do
+      expect {
+        adapter.user_from(context: Hashie::Mash.new)
+      }.to raise_error ArgumentError, "Expected :context to respond to :user"
+    end
+  end
+
   describe "#send_message" do
     # it "raises an exception when the context does not contain a channel" do
     #   expect {

@@ -23,23 +23,27 @@ module Socrates
       def dispatch(message, context: {})
         client_id = @adapter.client_id_from(context: context)
         channel   = @adapter.channel_from(context: context)
+        user      = @adapter.user_from(context: context)
 
-        do_dispatch(message, client_id, channel)
+        do_dispatch(message, client_id, channel, user)
       end
 
-      def start_conversation(user, state_id)
+      def start_conversation(user, state_id, message: nil)
         client_id = @adapter.client_id_from(user: user)
         channel   = @adapter.channel_from(user: user)
 
-        return false unless conversation_state(user).nil?
+        # Now, we assume the user of this code does this check on their own...
+        # return false unless conversation_state(user).nil?
 
         # Create state data to match the request.
         state_data = Socrates::Core::StateData.new(state_id: state_id, state_action: :ask)
 
         persist_state_data(client_id, state_data)
 
-        do_dispatch(nil, client_id, channel)
-        true
+        # Send our initial message if one was passed to us.
+        @adapter.send_direct_message(message, user) if message.present?
+
+        do_dispatch(nil, client_id, channel, user)
       end
 
       def conversation_state(user)
@@ -50,7 +54,7 @@ module Socrates
         begin
           snapshot   = @storage.get(client_id)
           state_data = StateData.deserialize(snapshot)
-          state_data = nil if state_data_expired?(state_data)
+          state_data = nil if state_data.expired? || state_data.finished?
         rescue => e
           @logger.warn "Error while fetching state_data for client id '#{client_id}'."
           @logger.warn e
@@ -64,7 +68,7 @@ module Socrates
 
       DEFAULT_ERROR_MESSAGE = "Sorry, an error occurred. We'll have to start over..."
 
-      def do_dispatch(message, client_id, channel)
+      def do_dispatch(message, client_id, channel, user)
         message = message&.strip
 
         @logger.info %Q(#{client_id} recv: "#{message}")
@@ -73,7 +77,7 @@ module Socrates
         # more :ask actions could run, before stopping at a :listen (and waiting for the next input).
         loop do
           state_data = fetch_state_data(client_id)
-          state      = instantiate_state(state_data, channel)
+          state      = instantiate_state(state_data, channel, user)
 
           args = [state.data.state_action]
           args << message if state.data.state_action == :listen
@@ -100,6 +104,8 @@ module Socrates
           # Break from the loop if there's nothing left to do, i.e. no more state transitions.
           break if done_transitioning?(state)
         end
+
+        true
       end
 
       # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
@@ -118,14 +124,14 @@ module Socrates
 
         # If the current state is nil or END_OF_CONVERSATION, set it to the default state, which is typically a state
         # that waits for an initial command or input from the user (e.g. help, start, etc).
-        if state_data.state_id.nil? || state_data.state_id == State::END_OF_CONVERSATION
+        if state_data.state_id.nil? || state_data.state_id == StateData::END_OF_CONVERSATION
           default_state, default_action = @state_factory.default
 
           state_data.state_id     = default_state
           state_data.state_action = default_action || :listen
 
         # Check to see if the last interation was too long ago.
-        elsif state_data_expired?(state_data) && @state_factory.expired(state_data).present?
+        elsif state_data.expired? && @state_factory.expired(state_data).present?
           expired_state, expired_action = @state_factory.expired(state_data)
 
           state_data.state_id     = expired_state
@@ -141,14 +147,8 @@ module Socrates
         @storage.put(client_id, state_data.serialize)
       end
 
-      def state_data_expired?(state_data)
-        return false unless state_data.last_interaction_timestamp.present?
-
-        state_data.elapsed_time > (Socrates.config.expired_timeout || 30.minutes)
-      end
-
-      def instantiate_state(state_data, channel)
-        @state_factory.build(state_data: state_data, adapter: @adapter, channel: channel)
+      def instantiate_state(state_data, channel, user)
+        @state_factory.build(state_data: state_data, adapter: @adapter, channel: channel, user: user)
       end
 
       def done_transitioning?(state)
@@ -156,7 +156,7 @@ module Socrates
         return true if state.data.state_action == :listen
 
         # Stop transitioning if there's no state to transition to, or the conversation has ended.
-        state.data.state_id.nil? || state.data.state_id == State::END_OF_CONVERSATION
+        state.data.state_id.nil? || state.data.state_id == StateData::END_OF_CONVERSATION
       end
 
       def handle_action_error(e, client_id, state, channel)
