@@ -9,7 +9,7 @@ require "socrates/core/state_data"
 module Socrates
   module Core
     module State
-      attr_reader :data, :context
+      attr_reader :data, :adapter, :channel, :user
 
       def initialize(data: StateData.new, adapter:, channel:, user:)
         @data              = data
