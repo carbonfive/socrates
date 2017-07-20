@@ -23,9 +23,11 @@ module Socrates
       end
 
       def expired?
-        return false unless last_interaction_timestamp.present?
+        return false if last_interaction_timestamp.nil? ||
+                        Socrates.config.expired_timeout.nil? ||
+                        Socrates.config.expired_timeout.zero?
 
-        elapsed_time > (Socrates.config.expired_timeout || 30.minutes)
+        elapsed_time > Socrates.config.expired_timeout
       end
 
       def elapsed_time

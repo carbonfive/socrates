@@ -5,12 +5,6 @@ require "socrates/core/state_data"
 TestWidget = Struct.new(:id, :name, :active)
 
 RSpec.describe Socrates::Core::StateData do
-  before do
-    Socrates.configure do |config|
-      config.expired_timeout = 120
-    end
-  end
-
   subject(:data) { described_class.new(data: { a: 100, b: { b1: "abc", b2: "xyz" } }) }
 
   describe "#finished?" do
@@ -36,26 +30,50 @@ RSpec.describe Socrates::Core::StateData do
   end
 
   describe "#expired?" do
+    before do
+      Socrates.configure do |config|
+        config.expired_timeout = expiration_timeout
+      end
+    end
+
     subject do
-      described_class.new.tap { |state_data| state_data.last_interaction_timestamp = last_interaction }.expired?
+      described_class.new.tap { |state_data| state_data.last_interaction_timestamp = last_interaction }
     end
 
-    context "when there has been no last interaction" do
-      let(:last_interaction) { nil }
+    context "when the expiration_timeout is set to 120 seconds" do
+      let(:expiration_timeout) { 120.seconds }
 
-      it { is_expected.to be false } # TODO: Really?
+      context "when there has been no last interaction" do
+        let(:last_interaction) { nil }
+
+        it { is_expected.to_not be_expired }
+      end
+
+      context "when the last interaction was a while ago" do
+        let(:last_interaction) { (expiration_timeout + 1).seconds.ago }
+
+        it { is_expected.to be_expired }
+      end
+
+      context "when the last interaction is within the threshold" do
+        let(:last_interaction) { (expiration_timeout - 1).seconds.ago }
+
+        it { is_expected.to_not be_expired }
+      end
     end
 
-    context "when the last interaction was a while ago" do
-      let(:last_interaction) { 121.seconds.ago }
+    context "when the expiration timeout is set to 0" do
+      let(:expiration_timeout) { 0 }
+      let(:last_interaction) { 40.hours.ago } # A really long time ago
 
-      it { is_expected.to be true }
+      it { is_expected.to_not be_expired }
     end
 
-    context "when the last interaction is within the threshold" do
-      let(:last_interaction) { 119.seconds.ago }
+    context "when the expiration timeout is set to nil" do
+      let(:expiration_timeout) { nil }
+      let(:last_interaction) { 40.hours.ago } # A really long time ago
 
-      it { is_expected.to be false }
+      it { is_expected.to_not be_expired }
     end
   end
 
