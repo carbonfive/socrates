@@ -8,24 +8,24 @@ RSpec.describe Socrates::Core::StateData do
   subject(:data) { described_class.new(data: { a: 100, b: { b1: "abc", b2: "xyz" } }) }
 
   describe "#finished?" do
-    subject { described_class.new(state_id: state_id).finished? }
+    subject { described_class.new(state_id: state_id) }
 
     context "when the state_id is nil" do
       let(:state_id) { nil }
 
-      it { is_expected.to be true }
+      it { is_expected.to be_finished }
     end
 
     context "when the state_id is END_OF_CONVERSATION" do
       let(:state_id) { described_class::END_OF_CONVERSATION }
 
-      it { is_expected.to be true }
+      it { is_expected.to be_finished }
     end
 
     context "when the state_id is anything else" do
       let(:state_id) { :something_else }
 
-      it { is_expected.to be false }
+      it { is_expected.to_not be_finished }
     end
   end
 
