@@ -21,13 +21,14 @@ RSpec.describe Socrates::Core::State do
 
   describe "#respond" do
     let(:state_data) { Socrates::Core::StateData.new(state_id: :state_a, state_action: :ask) }
-    subject(:state) { StateA.new(adapter: adapter, data: state_data, channel: "C1", user: user) }
+    let(:session) { Socrates::Core::Session.new(channel: "C1", user: user) }
+    subject(:state) { StateA.new(adapter: adapter, data: state_data, session: session) }
 
     context "when given a :message" do
       it "passes the string as-is to the adapter for sending" do
         state.respond message: "ABC987"
 
-        expect(adapter.last_msg).to eq "ABC987"
+        expect(session.messages["C1"]).to include "ABC987"
       end
     end
 
@@ -59,7 +60,8 @@ RSpec.describe Socrates::Core::State do
     ].each do |current, target, expected|
       it "transitions from #{current} to #{expected} when given #{target}" do
         state_data = Socrates::Core::StateData.new(state_id: current[0], state_action: current[1])
-        state      = StateA.new(adapter: adapter, data: state_data, channel: "C1", user: user)
+        session    = Socrates::Core::Session.new(channel: "C1", user: user)
+        state      = StateA.new(adapter: adapter, data: state_data, session: session)
 
         state.transition_to target[0], action: target[1]
 
@@ -71,7 +73,8 @@ RSpec.describe Socrates::Core::State do
 
   describe "#repeat_action" do
     let(:state_data) { Socrates::Core::StateData.new(state_id: :state_a, state_action: :ask) }
-    subject(:state) { StateA.new(adapter: adapter, data: state_data, channel: "C1", user: user) }
+    let(:session) { Socrates::Core::Session.new(channel: "C1", user: user) }
+    subject(:state) { StateA.new(adapter: adapter, data: state_data, session: session) }
 
     it "sets the next state and action to the current state and action (so that it runs again)" do
       state.repeat_action
@@ -84,7 +87,8 @@ RSpec.describe Socrates::Core::State do
   describe "#end_conversation" do
     let(:data) { { name: "Fitzgibbons", age: 42 } }
     let(:state_data) { Socrates::Core::StateData.new(state_id: :state_a, state_action: :ask, data: data) }
-    subject(:state) { StateA.new(adapter: adapter, data: state_data, channel: "C1", user: user) }
+    let(:session) { Socrates::Core::Session.new(channel: "C1", user: user) }
+    subject(:state) { StateA.new(adapter: adapter, data: state_data, session: session) }
 
     it "sets the next state and action to nil, to indicate the flow is over " do
       state.end_conversation

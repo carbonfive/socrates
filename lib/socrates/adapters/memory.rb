@@ -28,16 +28,26 @@ module Socrates
         user.nil? ? CHANNEL : users_channel(user)
       end
 
-      def send_message(message, channel)
-        raise ArgumentError, "Channel is required" unless channel.present?
+      def send_message(session, message, send_now: false)
+        raise ArgumentError, "Channel is required" unless session.channel.present?
 
-        @history[channel] << message
+        session.messages[session.channel] << message
+        flush_session(session, channel: session.channel) if send_now
       end
 
-      def send_direct_message(message, user)
-        raise ArgumentError, "User is required" unless user.present?
+      def send_direct_message(session, message, recipient)
+        raise ArgumentError, "Recipient is required" unless recipient.present?
 
-        @history[users_channel(user)] << message
+        im_channel = users_channel(recipient)
+
+        session.messages[im_channel] << message
+      end
+
+      def flush_session(session, channel: nil) # TODO: Dry this up? Session? Included module?
+        session.messages.select { |c, _| channel.nil? || channel == c }.each do |c, messages|
+          _send_message(c, messages.join("\n\n"))
+          messages.clear
+        end
       end
 
       #
@@ -61,6 +71,10 @@ module Socrates
       end
 
       private
+
+      def _send_message(channel, message) # TODO: Underscored name?
+        @history[channel] << message
+      end
 
       def users_channel(user)
         user.respond_to?(:id) ? user.id : user

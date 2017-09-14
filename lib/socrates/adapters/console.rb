@@ -25,28 +25,40 @@ module Socrates
         CHANNEL
       end
 
-      def send_message(message, channel)
-        raise ArgumentError, "Channel is required" unless channel.present?
+      def send_message(session, message, send_now: false)
+        raise ArgumentError, "Channel is required" unless session.channel.present?
 
-        puts "\n#{colorize(@name, "32;1")}: #{message}"
+        session.messages[session.channel] << message
+        flush_session(session, channel: session.channel) if send_now
       end
 
-      def send_direct_message(message, user)
-        raise ArgumentError, "User is required" unless user.present?
+      def send_direct_message(session, message, recipient)
+        raise ArgumentError, "User is required" unless recipient.present?
 
         name =
-          if user.respond_to?(:name)
-            user.name
-          elsif user.respond_to?(:id)
-            user.id
+          if recipient.respond_to?(:name)
+            recipient.name
+          elsif recipient.respond_to?(:id)
+            recipient.id
           else
-            user
+            recipient
           end
 
-        puts "\n[DM] #{colorize(name, "34;1")}: #{message}"
+        session.messages[name] << message
+      end
+
+      def flush_session(session, channel: nil) # TODO: Dry this up? Session? Included module?
+        session.messages.select { |c, _| channel.nil? || channel == c }.each do |c, messages|
+          _send_message(c, messages.join("\n\n"))
+          messages.clear
+        end
       end
 
       private
+
+      def _send_message(channel, message) # TODO: Underscored name?
+        puts "\n#{colorize(channel, "34;1")}: #{message}"
+      end
 
       def colorize(str, color_code)
         "\e[#{color_code}m#{str}\e[0m"

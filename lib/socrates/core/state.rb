@@ -9,13 +9,13 @@ require "socrates/core/state_data"
 module Socrates
   module Core
     module State
-      attr_reader :data, :adapter, :channel, :user
+      attr_reader :data, :adapter, :session, :user
 
-      def initialize(data: StateData.new, adapter:, channel:, user:)
+      def initialize(data: StateData.new, adapter:, session:)
         @data              = data
         @adapter           = adapter
-        @channel           = channel
-        @user              = user
+        @session           = session
+        @user              = session.user
         @next_state_id     = nil
         @next_state_action = nil
         @logger            = Socrates.config.logger || Socrates::Logger.default
@@ -37,7 +37,7 @@ module Socrates
         end
       end
 
-      def respond(message: nil, template: nil)
+      def respond(message: nil, template: nil, send_now: false)
         if template
           # TODO: Partials?
           filename = File.join(Socrates.config.view_path, template)
@@ -47,15 +47,15 @@ module Socrates
 
         return if message.empty?
 
-        @logger.info %Q(#{@channel} send: "#{format_for_logging(message)}")
-        @adapter.send_message(message, @channel)
+        @logger.info %Q(#{@session.channel} send: "#{format_for_logging(message)}")
+        @adapter.send_message(@session, message, send_now: send_now)
       end
 
       def send_message(to:, message:)
         displayable_to = to.respond_to?(:id) ? to.id : to
 
-        @logger.info %Q(#{@channel} send direct to #{displayable_to}: "#{format_for_logging(message)}")
-        @adapter.send_direct_message(message, to)
+        @logger.info %Q(#{@session.channel} send direct to #{displayable_to}: "#{format_for_logging(message)}")
+        @adapter.send_direct_message(@session, message, to)
       end
 
       def transition_to(state_id, action: nil, data: {})

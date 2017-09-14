@@ -49,9 +49,9 @@ RSpec.describe Socrates::Core::Dispatcher do
         expect(adapter.last_msg).to eq "Whoops, I didn't understand that. What's your birth date (e.g. MM/DD/YYYY)?"
 
         dispatcher.dispatch("05/18/1974")
-        expect(adapter.msgs[-3]).to eq "Got it Christian! So that makes you 42 years old."
-        expect(adapter.msgs[-2]).to eq "That's all for now..."
-        expect(adapter.msgs[-1]).to eq "Type `help` to see what else I can do."
+        expect(adapter.last_msg).to match "Got it Christian! So that makes you 42 years old.\n\n"
+        expect(adapter.last_msg).to match "That's all for now...\n"
+        expect(adapter.last_msg).to match "Type `help` to see what else I can do."
 
         # Check that we're back in the expected 'home' state.
         dispatcher.dispatch("help")
@@ -69,7 +69,7 @@ RSpec.describe Socrates::Core::Dispatcher do
         # Trigger an expiration.
         Timecop.travel(121.seconds.from_now)
         dispatcher.dispatch("Bob Smith")
-        expect(adapter.msgs[-2]).to eq "I've forgotten what we're talking about, let's start over."
+        expect(adapter.last_msg).to include "I've forgotten what we're talking about, let's start over."
       end
 
       it "recovers from an unexpected error while invoking a state action" do

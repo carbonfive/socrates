@@ -5,6 +5,7 @@ require "socrates/configuration"
 require "socrates/logger"
 require "socrates/string_helpers"
 require "socrates/storage/memory"
+require "socrates/core/session"
 require "socrates/core/state"
 require "socrates/core/state_data"
 
@@ -25,12 +26,16 @@ module Socrates
         channel   = @adapter.channel_from(context: context)
         user      = @adapter.user_from(context: context)
 
-        do_dispatch(message, client_id, channel, user)
+        session = Session.new(client_id: client_id, channel: channel, user: user)
+
+        do_dispatch(session, message)
       end
 
       def start_conversation(user, state_id, message: nil)
         client_id = @adapter.client_id_from(user: user)
         channel   = @adapter.channel_from(user: user)
+
+        session = Session.new(client_id: client_id, channel: channel, user: user)
 
         # Now, we assume the user of this code does this check on their own...
         # return false unless conversation_state(user).nil?
@@ -38,12 +43,13 @@ module Socrates
         # Create state data to match the request.
         state_data = Socrates::Core::StateData.new(state_id: state_id, state_action: :ask)
 
-        persist_state_data(client_id, state_data)
+        persist_state_data(session.client_id, state_data)
 
         # Send our initial message if one was passed to us.
-        @adapter.send_direct_message(message, user) if message.present?
+        @adapter.send_direct_message(session, message, user) if message.present?
 
-        do_dispatch(nil, client_id, channel, user)
+        do_dispatch(session, nil)
+        true
       end
 
       def conversation_state(user)
@@ -68,28 +74,29 @@ module Socrates
 
       DEFAULT_ERROR_MESSAGE = "Sorry, an error occurred. We'll have to start over..."
 
-      def do_dispatch(message, client_id, channel, user)
+      # rubocop:disable Metrics/AbcSize
+      def do_dispatch(session, message)
         message = message&.strip
 
-        @logger.info %Q(#{client_id} recv: "#{message}")
+        @logger.info %Q(#{session.client_id} recv: "#{message}")
 
         # In many cases, a two actions will run in this loop: :listen => :ask, but it's possible that a chain of 2 or
         # more :ask actions could run, before stopping at a :listen (and waiting for the next input).
         loop do
-          state_data = fetch_state_data(client_id)
-          state      = instantiate_state(state_data, channel, user)
+          state_data = fetch_state_data(session.client_id)
+          state      = instantiate_state(session, state_data)
 
           args = [state.data.state_action]
           args << message if state.data.state_action == :listen
 
-          msg = "#{client_id} processing :#{state.data.state_id} / :#{args.first}"
+          msg = "#{session.client_id} processing :#{state.data.state_id} / :#{args.first}"
           msg += %Q( / message: "#{args.second}") if args.count > 1
           @logger.debug msg
 
           begin
             state.send(*args)
           rescue => e
-            handle_action_error(e, client_id, state, channel)
+            handle_action_error(e, session, state)
             return
           end
 
@@ -97,15 +104,17 @@ module Socrates
           state.data.state_id     = state.next_state_id
           state.data.state_action = state.next_state_action
 
-          @logger.debug "#{client_id} transition to :#{state.data.state_id} / :#{state.data.state_action}"
+          @logger.debug "#{session.client_id} transition to :#{state.data.state_id} / :#{state.data.state_action}"
 
-          persist_state_data(client_id, state.data)
+          persist_state_data(session.client_id, state.data)
 
           # Break from the loop if there's nothing left to do, i.e. no more state transitions.
           break if done_transitioning?(state)
         end
+        # rubocop:enable Metrics/AbcSize
 
-        true
+        # Flush the session, which contains any not-yet-send messages.
+        @adapter.flush_session(session)
       end
 
       # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
@@ -147,8 +156,8 @@ module Socrates
         @storage.put(client_id, state_data.serialize)
       end
 
-      def instantiate_state(state_data, channel, user)
-        @state_factory.build(state_data: state_data, adapter: @adapter, channel: channel, user: user)
+      def instantiate_state(session, state_data)
+        @state_factory.build(state_data: state_data, adapter: @adapter, session: session)
       end
 
       def done_transitioning?(state)
@@ -159,16 +168,17 @@ module Socrates
         state.data.state_id.nil? || state.data.state_id == StateData::END_OF_CONVERSATION
       end
 
-      def handle_action_error(e, client_id, state, channel)
+      def handle_action_error(e, session, state)
         @logger.warn "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{e.message}"
         @logger.warn e
 
-        @adapter.send_message(@error_message, channel)
+        @adapter.send_message(session, @error_message, send_now: true)
+
         state.data.clear
         state.data.state_id     = nil
         state.data.state_action = nil
 
-        persist_state_data(client_id, state.data)
+        persist_state_data(session.client_id, state.data)
       end
     end
   end
