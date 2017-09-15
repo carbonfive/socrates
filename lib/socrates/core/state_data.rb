@@ -38,6 +38,10 @@ module Socrates
         @last_interaction_timestamp = Time.current
       end
 
+      def each_key(&block)
+        @data.each_key(&block)
+      end
+
       def keys
         @data.keys
       end

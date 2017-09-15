@@ -61,7 +61,7 @@ module Socrates
           snapshot   = @storage.get(client_id)
           state_data = StateData.deserialize(snapshot)
           state_data = nil if state_data.expired? || state_data.finished?
-        rescue => e
+        rescue StandardError => e
           @logger.warn "Error while fetching state_data for client id '#{client_id}'."
           @logger.warn e
           state_data = nil
@@ -95,7 +95,7 @@ module Socrates
 
           begin
             state.send(*args)
-          rescue => e
+          rescue StandardError => e
             handle_action_error(e, session, state)
             return
           end
@@ -123,7 +123,7 @@ module Socrates
           begin
             snapshot   = @storage.get(client_id)
             state_data = StateData.deserialize(snapshot)
-          rescue => e
+          rescue StandardError => e
             @logger.warn "Error while fetching state_data for client id '#{client_id}', resetting state: #{e.message}"
             @logger.warn e
           end

@@ -167,7 +167,7 @@ RSpec.describe Socrates::Core::StateData do
 
       expect(new_data.keys).to contain_exactly(*data.keys)
 
-      data.keys.each do |key|
+      data.each_key do |key|
         expect(data.get(key)).to eq new_data.get(key)
       end
     end
