@@ -29,15 +29,6 @@ module Socrates
         raise ArgumentError, "Must provide one of context or user"
       end
 
-      def user_from(context:)
-        raise ArgumentError, "context cannot be nil" if context.nil?
-        raise ArgumentError, "Expected context to respond to :user" unless context.respond_to?(:user)
-
-        client = @real_time_client.web_client
-        info   = client.users_info(user: context.user)
-        info.present? ? info.user : nil
-      end
-
       def send_message(session, message, send_now: false)
         raise ArgumentError, "session is required" unless session.present?
         raise ArgumentError, "session.channel is required" unless session.channel.present?
@@ -68,6 +59,15 @@ module Socrates
           response.members.reject!(&:deleted?) unless include_deleted
           response.members.reject!(&:is_bot?) unless include_bots
         end
+      end
+
+      def user_from(context:)
+        raise ArgumentError, "context cannot be nil" if context.nil?
+        raise ArgumentError, "Expected context to respond to :user" unless context.respond_to?(:user)
+
+        client = @real_time_client.web_client
+        info   = client.users_info(user: context.user)
+        info.present? ? info.user : nil
       end
 
       # Note: this triggers a call to the Slack API which makes it ill-suited for use within a loop.
