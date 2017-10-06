@@ -3,6 +3,7 @@ require "socrates/adapters/stubs"
 module Socrates
   module Adapters
     class Console
+      include Socrates::Adapters::Adapter
       include StubUserDirectory
 
       CLIENT_ID = "CONSOLE"
@@ -45,13 +46,6 @@ module Socrates
           end
 
         session.messages[name] << message
-      end
-
-      def flush_session(session, channel: nil) # TODO: Dry this up? Session? Included module?
-        session.messages.select { |c, _| channel.nil? || channel == c }.each do |c, messages|
-          _send_message(c, messages.join("\n\n"))
-          messages.clear
-        end
       end
 
       private

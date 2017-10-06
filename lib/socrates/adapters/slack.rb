@@ -1,8 +1,11 @@
 require "active_support/core_ext/object"
+require "socrates/adapters/adapter"
 
 module Socrates
   module Adapters
     class Slack
+      include Socrates::Adapters::Adapter
+
       def initialize(real_time_client)
         @real_time_client = real_time_client
       end
@@ -43,13 +46,6 @@ module Socrates
         im_channel = lookup_im_channel(recipient)
 
         session.messages[im_channel] << message
-      end
-
-      def flush_session(session, channel: nil) # TODO: Dry this up? Session? Included module?
-        session.messages.select { |c, _| channel.nil? || channel == c }.each do |c, messages|
-          _send_message(c, messages.join("\n\n"))
-          messages.clear
-        end
       end
 
       def users_list(include_deleted: false, include_bots: false)
