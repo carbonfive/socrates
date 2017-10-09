@@ -46,7 +46,7 @@ module Socrates
         persist_state_data(session.client_id, state_data)
 
         # Send our initial message if one was passed to us.
-        @adapter.send_direct_message(session, message, user) if message.present?
+        @adapter.queue_direct_message(session, message, user) if message.present?
 
         do_dispatch(session, nil)
         true
@@ -172,7 +172,7 @@ module Socrates
         @logger.warn "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{e.message}"
         @logger.warn e
 
-        @adapter.send_message(session, @error_message, send_now: true)
+        @adapter.queue_message(session, @error_message, send_now: true)
 
         state.data.clear
         state.data.state_id     = nil

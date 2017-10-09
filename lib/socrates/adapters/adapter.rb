@@ -11,22 +11,31 @@ module Socrates
         raise NotImplementedError
       end
 
-      def send_message(_session, _message, _send_now: false) # queue_message?
-        raise NotImplementedError
+      def queue_message(session, message, send_now: false)
+        raise ArgumentError, "session is required" unless session.present?
+        raise ArgumentError, "session.channel is required" unless session.channel.present?
+
+        session.messages[session.channel] << message
+        flush_session(session, channel: session.channel) if send_now
       end
 
-      def send_direct_message(_session, _message, _recipient)
-        raise NotImplementedError
+      def queue_direct_message(session, message, recipient)
+        raise ArgumentError, "recipient is required" unless recipient.present?
+        raise ArgumentError, "recipient.if is required" unless recipient.id.present?
+
+        dm_channel = channel_from(user: recipient)
+
+        session.messages[dm_channel] << message
       end
 
       def flush_session(session, channel: nil)
         session.messages.select { |c, _| channel.nil? || channel == c }.each do |c, messages|
-          _send_message(c, messages.join("\n\n"))
+          send_message(c, messages.join("\n\n"))
           messages.clear
         end
       end
 
-      def _send_message(_channel, _message) # TODO: send_message
+      def send_message(_channel, _message)
         raise NotImplementedError
       end
 

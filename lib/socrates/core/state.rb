@@ -48,14 +48,14 @@ module Socrates
         return if message.empty?
 
         @logger.info %Q(#{@session.channel} send: "#{format_for_logging(message)}")
-        @adapter.send_message(@session, message, send_now: send_now)
+        @adapter.queue_message(@session, message, send_now: send_now)
       end
 
-      def send_message(to:, message:)
+      def send_message(to:, message:) # TODO: direct_message? send_dm?
         displayable_to = to.respond_to?(:id) ? to.id : to
 
         @logger.info %Q(#{@session.channel} send direct to #{displayable_to}: "#{format_for_logging(message)}")
-        @adapter.send_direct_message(@session, message, to)
+        @adapter.queue_direct_message(@session, message, to)
       end
 
       def transition_to(state_id, action: nil, data: {})

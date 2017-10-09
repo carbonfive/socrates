@@ -32,22 +32,6 @@ module Socrates
         raise ArgumentError, "Must provide one of context or user"
       end
 
-      def send_message(session, message, send_now: false)
-        raise ArgumentError, "session is required" unless session.present?
-        raise ArgumentError, "session.channel is required" unless session.channel.present?
-
-        session.messages[session.channel] << message
-        flush_session(session, channel: session.channel) if send_now
-      end
-
-      def send_direct_message(session, message, recipient)
-        raise ArgumentError, "Expected recipient to respond to :id" unless recipient.respond_to?(:id)
-
-        im_channel = lookup_im_channel(recipient)
-
-        session.messages[im_channel] << message
-      end
-
       def users_list(include_deleted: false, include_bots: false)
         client = @real_time_client.web_client
 
@@ -81,7 +65,7 @@ module Socrates
 
       private
 
-      def _send_message(channel, message) # TODO: Underscored name?
+      def send_message(channel, message)
         @real_time_client.message(text: message, channel: channel)
       end
 

@@ -78,23 +78,23 @@ RSpec.describe Socrates::Adapters::Slack do
   describe "#send_message" do
     it "raises an exception when the session is nil" do
       expect {
-        adapter.send_message(nil, "yo")
+        adapter.queue_message(nil, "yo")
       }.to raise_error ArgumentError, "session is required"
     end
 
     it "raises an exception when the session does not contain a channel" do
       expect {
         session = Socrates::Core::Session.new(channel: nil)
-        adapter.send_message(session, "yo")
+        adapter.queue_message(session, "yo")
       }.to raise_error ArgumentError, "session.channel is required"
     end
   end
 
-  describe "#send_direct_message" do
+  describe "#queue_direct_message" do
     it "raises an exception when user does not respond to :id" do
       expect {
-        adapter.send_direct_message(nil, "yo", Hashie::Mash.new)
-      }.to raise_error ArgumentError, "Expected recipient to respond to :id"
+        adapter.queue_direct_message(nil, "yo", Hashie::Mash.new)
+      }.to raise_error ArgumentError, "recipient is required"
     end
   end
 
