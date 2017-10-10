@@ -35,7 +35,7 @@ RSpec.describe Socrates::Core::Dispatcher do
 
   context "given the set of sample states and transitions" do
     describe "#dispatch" do
-      it "navigates a happy path conversation starting with the 'age' command" do
+      it "runs through all of the steps in the 'age' flow" do
         # Check that we're in the expected 'home' state.
         dispatcher.dispatch("help")
         expect(adapter.last_msg).to match("`age`").and match("`help`")
@@ -64,7 +64,7 @@ RSpec.describe Socrates::Core::Dispatcher do
         expect(adapter.last_msg).to eq "Whoops, I don't know what you mean by that. Try `help` to see my commands."
       end
 
-      it "handles sending direct messages to other users from a flow" do
+      it "sends direct messages to other users in the 'dms' flow" do
         dispatcher.dispatch("dms")
         dispatcher.dispatch("Hail Mary!")
         expect(adapter.last_msg).to match "Direct messages sent!"
