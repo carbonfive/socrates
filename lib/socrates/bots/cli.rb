@@ -10,8 +10,10 @@ module Socrates
       end
 
       def start
+        context = { channel: "CONSOLE" }
+
         while (input = gets.chomp)
-          @dispatcher.dispatch(input)
+          @dispatcher.dispatch(input, context: context)
         end
       end
     end

@@ -31,6 +31,8 @@ module Socrates
             transition_to :help
           when "age"
             transition_to :ask_for_name
+          when "dms"
+            transition_to :dms
           when "error"
             transition_to :raise_error
           else
@@ -47,6 +49,7 @@ module Socrates
           Thanks for asking! I can do these things for you...
 
             • `age` - Calculate your age from your birth date.
+            • `dms` - Sends a direct messages to two other users.
             • `error` - Start a short error path that raises an error.
             • `help` - Tell you what I can do for you.
 
@@ -162,6 +165,26 @@ module Socrates
 
       def ask
         respond message: "Type `help` to see what else I can do."
+
+        end_conversation
+      end
+    end
+
+    class Dms
+      include Socrates::Core::State
+
+      def ask
+        respond message: "I will send whatever you type to two other users as direct messages."
+      end
+
+      def listen(message)
+        users = @adapter.users_list.members.sample(2)
+
+        users.each do |user|
+          send_message(to: user, message: "Message: #{message}")
+        end
+
+        respond message: "Direct messages sent!"
 
         end_conversation
       end

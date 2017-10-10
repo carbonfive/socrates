@@ -1,8 +1,10 @@
+require "socrates/adapters/adapter"
 require "socrates/adapters/stubs"
 
 module Socrates
   module Adapters
     class Memory
+      include Socrates::Adapters::Adapter
       include StubUserDirectory
 
       CLIENT_ID = "MEMORY"
@@ -28,28 +30,6 @@ module Socrates
         user.nil? ? CHANNEL : users_channel(user)
       end
 
-      def send_message(session, message, send_now: false)
-        raise ArgumentError, "Channel is required" unless session.channel.present?
-
-        session.messages[session.channel] << message
-        flush_session(session, channel: session.channel) if send_now
-      end
-
-      def send_direct_message(session, message, recipient)
-        raise ArgumentError, "Recipient is required" unless recipient.present?
-
-        im_channel = users_channel(recipient)
-
-        session.messages[im_channel] << message
-      end
-
-      def flush_session(session, channel: nil) # TODO: Dry this up? Session? Included module?
-        session.messages.select { |c, _| channel.nil? || channel == c }.each do |c, messages|
-          _send_message(c, messages.join("\n\n"))
-          messages.clear
-        end
-      end
-
       #
       # Methods for fetching messages and dms in specs...
       #
@@ -72,7 +52,7 @@ module Socrates
 
       private
 
-      def _send_message(channel, message) # TODO: Underscored name?
+      def send_message(channel, message)
         @history[channel] << message
       end
 

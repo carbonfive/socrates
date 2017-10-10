@@ -1,12 +1,13 @@
+require "socrates/adapters/adapter"
 require "socrates/adapters/stubs"
 
 module Socrates
   module Adapters
     class Console
+      include Socrates::Adapters::Adapter
       include StubUserDirectory
 
       CLIENT_ID = "CONSOLE"
-      CHANNEL   = "C1"
 
       def initialize(name: "@socrates")
         super()
@@ -22,41 +23,22 @@ module Socrates
       def channel_from(context: nil, user: nil)
         raise ArgumentError, "Must provide one of :context or :user" if context.nil? && user.nil?
 
-        CHANNEL
-      end
-
-      def send_message(session, message, send_now: false)
-        raise ArgumentError, "Channel is required" unless session.channel.present?
-
-        session.messages[session.channel] << message
-        flush_session(session, channel: session.channel) if send_now
-      end
-
-      def send_direct_message(session, message, recipient)
-        raise ArgumentError, "User is required" unless recipient.present?
-
-        name =
-          if recipient.respond_to?(:name)
-            recipient.name
-          elsif recipient.respond_to?(:id)
-            recipient.id
-          else
-            recipient
-          end
-
-        session.messages[name] << message
-      end
-
-      def flush_session(session, channel: nil) # TODO: Dry this up? Session? Included module?
-        session.messages.select { |c, _| channel.nil? || channel == c }.each do |c, messages|
-          _send_message(c, messages.join("\n\n"))
-          messages.clear
+        if context&.fetch(:channel).present?
+          context[:channel]
+        elsif user.present?
+          display_user(user)
+        else
+          "?"
         end
       end
 
       private
 
-      def _send_message(channel, message) # TODO: Underscored name?
+      def display_user(user)
+        (user&.name || user&.id || user)&.upcase
+      end
+
+      def send_message(channel, message)
         puts "\n#{colorize(channel, "34;1")}: #{message}"
       end
 
