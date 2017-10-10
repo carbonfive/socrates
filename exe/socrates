@@ -34,7 +34,7 @@ option_parser = OptionParser.new do |parser|
 end
 option_parser.parse!
 
-def run_command(options)
+def run_command(options) # rubocop:disable Metrics/MethodLength
   storage =
     case options[:storage]
       when "redis"
@@ -54,9 +54,15 @@ def run_command(options)
 
   case (adapter = options[:adapter])
     when "console"
-      Socrates::Bots::CLI.new(state_factory: Socrates::SampleStates::StateFactory.new).start
+      adapter = Socrates::Adapters::Console.new
+      adapter.add_user(id: 1, name: "joe", first: "Joe", last: "Smith", email: "joe@example.com")
+      adapter.add_user(id: 2, name: "rachel", first: "Rachel", last: "Doe", email: "rachel@example.com")
+
+      Socrates::Bots::CLI.new(adapter: adapter, state_factory: Socrates::SampleStates::StateFactory.new).start
+
     when "slack"
       Socrates::Bots::Slack.new(state_factory: Socrates::SampleStates::StateFactory.new).start
+
     else
       puts "Unknown adapter '#{adapter}'"
       exit 1

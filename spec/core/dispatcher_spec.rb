@@ -27,6 +27,8 @@ RSpec.describe Socrates::Core::Dispatcher do
   end
 
   let(:adapter) { Socrates::Adapters::Memory.new }
+  let!(:user1) { adapter.add_user(id: 1, name: "joe", first: "Joe", last: "Apple", email: "joe@example.com") }
+  let!(:user2) { adapter.add_user(id: 2, name: "jill", first: "Jill", last: "Peach", email: "jill@example.com") }
   let(:storage) { Socrates::Storage::Memory.new }
   let(:state_factory) { Socrates::SampleStates::StateFactory.new }
   subject(:dispatcher) { described_class.new(adapter: adapter, storage: storage, state_factory: state_factory) }
@@ -60,6 +62,15 @@ RSpec.describe Socrates::Core::Dispatcher do
         # And that we handle some random input.
         dispatcher.dispatch("Howdy!")
         expect(adapter.last_msg).to eq "Whoops, I don't know what you mean by that. Try `help` to see my commands."
+      end
+
+      it "handles sending direct messages to other users from a flow" do
+        dispatcher.dispatch("dms")
+        dispatcher.dispatch("Hail Mary!")
+        expect(adapter.last_msg).to match "Direct messages sent!"
+
+        expect(adapter.last_dm(user1)).to eq "Message: Hail Mary!"
+        expect(adapter.last_dm(user2)).to eq "Message: Hail Mary!"
       end
 
       it "transitions to the expired state when too much time has passed" do
