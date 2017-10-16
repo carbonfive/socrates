@@ -178,7 +178,7 @@ module Socrates
       end
 
       def listen(message)
-        users = @adapter.users_list.members.sample(2)
+        users = @adapter.users_list.sample(2)
 
         users.each do |user|
           send_message(to: user, message: "Message: #{message}")

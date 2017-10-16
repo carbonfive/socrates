@@ -44,6 +44,7 @@ module Socrates
 
       def lookup_user(email:)
         @users.find { |user| email == user.profile&.email }
+        Response.new(@users).members
       end
 
       def lookup_email(*)

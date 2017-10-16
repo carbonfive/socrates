@@ -35,10 +35,10 @@ module Socrates
       def users_list(include_deleted: false, include_bots: false)
         client = @real_time_client.web_client
 
-        client.users_list.tap do |response|
+        client.users_list.tap { |response|
           response.members.reject!(&:deleted?) unless include_deleted
           response.members.reject!(&:is_bot?) unless include_bots
-        end
+        }.members
       end
 
       def user_from(context:)
