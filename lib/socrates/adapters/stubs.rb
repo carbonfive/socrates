@@ -1,10 +1,8 @@
 module Socrates
   module Adapters
     #
-    # Response, User, Profile are POROs that represent keys concepts that exist in Slack (or other chat systems).
+    # User, Profile are POROs that represent keys concepts that exist in Slack (or other chat systems).
     #
-    Response = Struct.new(:members)
-
     User = Struct.new(:id, :name, :tz_offset, :profile) do
       def real_name
         return "" if profile.nil?
@@ -20,7 +18,7 @@ module Socrates
     # to be used by the stubbed versions of adapters (like Console and Memory).
     #
     module StubUserDirectory
-      attr_accessor :default_user, :users
+      attr_accessor :default_user
 
       def initialize
         @users = []
@@ -34,17 +32,12 @@ module Socrates
       end
       # rubocop:enable Metrics/ParameterLists
 
+      def users(*)
+        @users
+      end
+
       def user_from(*)
         @default_user
-      end
-
-      def users_list(*)
-        Response.new(@users)
-      end
-
-      def lookup_user(email:)
-        @users.find { |user| email == user.profile&.email }
-        Response.new(@users).members
       end
 
       def lookup_email(*)

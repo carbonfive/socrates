@@ -3,11 +3,16 @@ require "socrates/adapters/stubs"
 module Socrates
   module Adapters
     module Adapter
-      def client_id_from(_context: nil, _user: nil)
+      # Many of the methods in the Adapter module serve as an interface for Adapter implementations to
+      # implement. We want to serve as an example, even if we don't provide implementations here. Therefor,
+      # we're disabling this cop to avoid its warnings.
+      # rubocop:disable Lint/UnusedMethodArgument
+
+      def client_id_from(context: nil, user: nil)
         raise NotImplementedError
       end
 
-      def channel_from(_context: nil, _user: nil)
+      def channel_from(context: nil, user: nil)
         raise NotImplementedError
       end
 
@@ -21,7 +26,7 @@ module Socrates
 
       def queue_direct_message(session, message, recipient)
         raise ArgumentError, "recipient is required" unless recipient.present?
-        raise ArgumentError, "recipient.if is required" unless recipient.id.present?
+        raise ArgumentError, "recipient.id is required" unless recipient.id.present?
 
         dm_channel = channel_from(user: recipient)
 
@@ -35,29 +40,27 @@ module Socrates
         end
       end
 
-      def send_message(_channel, _message)
+      def send_message(channel, message)
         raise NotImplementedError
       end
 
-      def user_from(_context:)
+      def users(include_deleted: false, include_bots: false)
         raise NotImplementedError
       end
 
-      def users_list(*)
+      def user_from(context:)
         raise NotImplementedError
       end
 
-      def lookup_user(_email:)
-        raise NotImplementedError
+      def lookup_user(email:)
+        users.members.find { |user| email == user.profile&.email }
       end
 
       def lookup_email(*)
         raise NotImplementedError
       end
 
-      def users_channel(_user)
-        raise NotImplementedError
-      end
+      # rubocop:enable Lint/UnusedMethodArgument
     end
   end
 end
