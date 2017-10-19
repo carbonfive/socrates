@@ -51,7 +51,7 @@ module Socrates
         @adapter.queue_message(@session, message, send_now: send_now)
       end
 
-      def send_message(to:, message:) # TODO: direct_message? send_dm?
+      def send_message(to:, message:)
         displayable_to = to.respond_to?(:id) ? to.id : to
 
         @logger.info %Q(#{@session.channel} send direct to #{displayable_to}: "#{format_for_logging(message)}")
