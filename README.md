@@ -153,11 +153,12 @@ restarting the bot. Use the `-d` flag for debugging log information.
 
 ## Core Concepts
 
-* Dispatcher
-* Adapter (Slack, Console, Memory)
-* Storage (Memory, Redis)
-* State
-* Helpers
+* Dispatcher - Kicks off conversations, responds to input, and provides general state managements.
+* Session - Buffers messages to channels, until flushed by an Adapter.
+* Adapter (Slack, Console, Memory) - Captures service specific functionality.
+* Storage (Memory, Redis) - Handles persisting conversational state.
+* State - Represents a state of a conversation, provides helpers for state implementations.
+* Helpers - Simple helpers.
 
 TODO: Expand descriptions. Include a diagram.
 
