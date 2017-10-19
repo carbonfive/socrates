@@ -98,7 +98,7 @@ RSpec.describe Socrates::Adapters::Slack do
     end
   end
 
-  describe "#users_list" do
+  describe "#users" do
     let(:active_members) { [Hashie::Mash.new(id: "AM01", deleted: false, is_bot: false)] }
     let(:deleted_members) { [Hashie::Mash.new(id: "D01", deleted: true, is_bot: false)] }
     let(:bots) { [Hashie::Mash.new(id: "B01", deleted: false, is_bot: true)] }
@@ -109,15 +109,15 @@ RSpec.describe Socrates::Adapters::Slack do
     end
 
     it "removes deleted users and bots by default" do
-      expect(adapter.users_list.members).to contain_exactly(*active_members)
+      expect(adapter.users).to contain_exactly(*active_members)
     end
 
     it "includes deleted users when include_deleted is true" do
-      expect(adapter.users_list(include_deleted: true).members).to contain_exactly(*(active_members + deleted_members))
+      expect(adapter.users(include_deleted: true)).to contain_exactly(*(active_members + deleted_members))
     end
 
     it "includes bots when include_bots is true" do
-      expect(adapter.users_list(include_bots: true).members).to contain_exactly(*(active_members + bots))
+      expect(adapter.users(include_bots: true)).to contain_exactly(*(active_members + bots))
     end
   end
 

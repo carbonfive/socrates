@@ -27,18 +27,18 @@ module Socrates
           raise ArgumentError, "Expected context to respond to :channel" unless context.respond_to?(:channel)
           return context.channel
         end
-        return lookup_im_channel(user) unless user.nil?
+        return lookup_dm_channel(user) unless user.nil?
 
         raise ArgumentError, "Must provide one of context or user"
       end
 
-      def users_list(include_deleted: false, include_bots: false)
+      def users(include_deleted: false, include_bots: false)
         client = @real_time_client.web_client
 
-        client.users_list.tap do |response|
+        client.users_list.tap { |response|
           response.members.reject!(&:deleted?) unless include_deleted
           response.members.reject!(&:is_bot?) unless include_bots
-        end
+        }.members
       end
 
       def user_from(context:)
@@ -48,11 +48,6 @@ module Socrates
         client = @real_time_client.web_client
         info   = client.users_info(user: context.user)
         info.present? ? info.user : nil
-      end
-
-      # Note: this triggers a call to the Slack API which makes it ill-suited for use within a loop.
-      def lookup_user(email:)
-        users_list.members.find { |user| email == user.profile&.email }
       end
 
       def lookup_email(context:)
@@ -69,7 +64,7 @@ module Socrates
         @real_time_client.message(text: message, channel: channel)
       end
 
-      def lookup_im_channel(user)
+      def lookup_dm_channel(user)
         im = @real_time_client.ims.values.find { |i| i.user == user }
 
         return im if im.present?
