@@ -57,15 +57,8 @@ module Socrates
 
         return nil unless @storage.has_key?(client_id)
 
-        begin
-          snapshot   = @storage.get(client_id)
-          state_data = StateData.deserialize(snapshot)
-          state_data = nil if state_data.expired? || state_data.finished?
-        rescue StandardError => e
-          @logger.warn "Error while fetching state_data for client id '#{client_id}'."
-          @logger.warn e
-          state_data = nil
-        end
+        state_data = @storage.fetch(client_id)
+        state_data = nil if state_data&.expired? || state_data&.finished?
 
         state_data
       end
@@ -119,17 +112,7 @@ module Socrates
 
       # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
       def fetch_state_data(client_id)
-        if @storage.has_key?(client_id)
-          begin
-            snapshot   = @storage.get(client_id)
-            state_data = StateData.deserialize(snapshot)
-          rescue StandardError => e
-            @logger.warn "Error while fetching state_data for client id '#{client_id}', resetting state: #{e.message}"
-            @logger.warn e
-          end
-        end
-
-        state_data ||= StateData.new
+        state_data = @storage.fetch(client_id) || StateData.new
 
         # If the current state is nil or END_OF_CONVERSATION, set it to the default state, which is typically a state
         # that waits for an initial command or input from the user (e.g. help, start, etc).
@@ -152,8 +135,7 @@ module Socrates
       # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
       def persist_state_data(client_id, state_data)
-        state_data.reset_elapsed_time
-        @storage.put(client_id, state_data.serialize)
+        @storage.persist(client_id, state_data)
       end
 
       def instantiate_state(session, state_data)

@@ -1,6 +1,10 @@
+require "socrates/storage/storage"
+
 module Socrates
   module Storage
     class Memory
+      include Socrates::Storage::Storage
+
       def initialize
         @memory = {}
       end
