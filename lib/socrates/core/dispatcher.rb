@@ -41,7 +41,7 @@ module Socrates
         # return false unless conversation_state(user).nil?
 
         # Create state data to match the request.
-        state_data = Socrates::Core::StateData.new(state_id: state_id, state_action: :ask)
+        state_data = StateData.new(state_id: state_id, state_action: :ask)
 
         persist_state_data(session.client_id, state_data)
 
