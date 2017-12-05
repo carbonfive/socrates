@@ -1,8 +1,12 @@
 require "redis"
 
+require "socrates/storage/storage"
+
 module Socrates
   module Storage
     class Redis
+      include Socrates::Storage::Storage
+
       def initialize(url: "redis://localhost")
         @redis = ::Redis.new(url: url)
       end
