@@ -150,9 +150,9 @@ module Socrates
         state.data.state_id.nil? || state.data.state_id == StateData::END_OF_CONVERSATION
       end
 
-      def handle_action_error(e, session, state)
-        @logger.warn "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{e.message}"
-        @logger.warn e
+      def handle_action_error(error, session, state)
+        @logger.warn "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{error.message}"
+        @logger.warn error
 
         @adapter.queue_message(session, @error_message, send_now: true)
 
