@@ -17,12 +17,14 @@ module Socrates
     attr_accessor :error_message
     attr_accessor :expired_timeout # seconds
     attr_accessor :logger
+    attr_accessor :error_logger # For caught exceptions, replace with your own logger, such as Rollbar
 
     def initialize
       @storage         = Storage::Memory.new
       @error_message   = "Sorry, something went wrong. We'll have to start over..."
       @expired_timeout = 30.minutes
       @logger          = Socrates::Logger.default
+      @error_logger    = Socrates::Logger.default
     end
   end
 end
