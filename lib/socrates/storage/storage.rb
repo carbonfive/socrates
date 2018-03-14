@@ -4,7 +4,7 @@ module Socrates
   module Storage
     module Storage
       def initialize
-        @logger = Socrates.config.logger
+        @error_logger = Socrates.config.error_logger
       end
 
       def fetch(client_id)
@@ -17,8 +17,9 @@ module Socrates
         begin
           Socrates::Core::StateData.deserialize(snapshot)
         rescue StandardError => e
-          @logger.warn "Error while fetching state_data for client id '#{client_id}', resetting state: #{e.message}"
-          @logger.warn e
+          @error_logger.error "Error while fetching state_data for client id '#{client_id}', /
+            resetting state: #{e.message}"
+          @error_logger.error e
         end
       end
 
