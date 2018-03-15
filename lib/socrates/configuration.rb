@@ -17,12 +17,14 @@ module Socrates
     attr_accessor :error_message
     attr_accessor :expired_timeout # seconds
     attr_accessor :logger
+    attr_accessor :error_handler   # a callable proc
 
     def initialize
       @storage         = Storage::Memory.new
       @error_message   = "Sorry, something went wrong. We'll have to start over..."
       @expired_timeout = 30.minutes
       @logger          = Socrates::Logger.default
+      @error_handler   = proc { |_message, _error| }
     end
   end
 end
