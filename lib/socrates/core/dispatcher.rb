@@ -18,6 +18,7 @@ module Socrates
         @storage       = storage || Socrates.config.storage
 
         @logger        = Socrates.config.logger
+        @error_handler = Socrates.config.error_handler
         @error_message = Socrates.config.error_message || DEFAULT_ERROR_MESSAGE
       end
 
@@ -151,8 +152,11 @@ module Socrates
       end
 
       def handle_action_error(error, session, state)
-        @logger.warn "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{error.message}"
+        msg = "Error while processing action #{state.data.state_id}/#{state.data.state_action}: #{error.message}"
+        @logger.warn msg
         @logger.warn error
+
+        @error_handler.call(msg, error) if @error_handler.present?
 
         @adapter.queue_message(session, @error_message, send_now: true)
 

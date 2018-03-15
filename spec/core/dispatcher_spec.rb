@@ -14,6 +14,7 @@ RSpec.describe Socrates::Core::Dispatcher do
     Socrates.configure do |config|
       config.logger.level    = Logger::FATAL
       config.error_message   = "Whoops! Time for a reboot..."
+      config.error_handler   = error_handler
       config.expired_timeout = 120
     end
 
@@ -31,6 +32,7 @@ RSpec.describe Socrates::Core::Dispatcher do
   let!(:user2) { adapter.add_user(id: 2, name: "jill", first: "Jill", last: "Peach", email: "jill@example.com") }
   let(:storage) { Socrates::Storage::Memory.new }
   let(:state_factory) { Socrates::SampleStates::StateFactory.new }
+  let(:error_handler) { double }
   subject(:dispatcher) { described_class.new(adapter: adapter, storage: storage, state_factory: state_factory) }
 
   context "given the set of sample states and transitions" do
@@ -84,6 +86,8 @@ RSpec.describe Socrates::Core::Dispatcher do
       end
 
       it "recovers from an unexpected error while invoking a state action" do
+        expect(error_handler).to receive(:call)
+
         dispatcher.dispatch("error")
         expect(adapter.last_msg).to eq "I will raise an error regardless of what you enter next..."
 
