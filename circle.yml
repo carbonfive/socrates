@@ -1,7 +1,0 @@
-dependencies:
-  pre:
-    - gem update --system
-
-test:
-  post:
-    - bundle exec rubocop

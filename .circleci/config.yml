@@ -1,0 +1,36 @@
+version: 2
+jobs:
+  build:
+    parallelism: 1
+    working_directory: ~/socrates
+    docker:
+      - image: circleci/ruby:2.5.0
+    steps:
+      - checkout
+
+      # Restore bundle cache, with fallbacks to increase the likeliness of a cache hit
+      - restore_cache:
+          keys:
+            - gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+            - gem-cache-{{ arch }}-{{ .Branch }}
+            - gem-cache
+
+      # Bundle install dependencies and remove any unused gems
+      - run: bundle install --path vendor/bundle --jobs=4 && bundle clean --force
+
+      # Store bundle cache
+      - save_cache:
+          key: gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+      # Rubocop compliance
+      - run: bundle exec rubocop
+
+      # Run RSpec in parallel, when parallelism > 1
+      - run: bundle exec rspec
+
+      # Save the test logs for debugging
+      - store_artifacts:
+          path: ./log/test.log
+          destination: test.log
