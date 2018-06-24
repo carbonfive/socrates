@@ -141,11 +141,10 @@ module Socrates
       def calculate_age
         today = Time.current.to_date
 
-        if today.month < birth_date.month || (today.month == birth_date.month && birth_date.day > today.day)
-          today.year - birth_date.year - 1
-        else
-          today.year - birth_date.year
-        end
+        age = today.year - birth_date.year
+        age -= 1 if today.month < birth_date.month || (today.month == birth_date.month && birth_date.day > today.day)
+
+        age
       end
     end
 
