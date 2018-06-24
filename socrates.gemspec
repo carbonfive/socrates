@@ -27,8 +27,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 12.3"
   spec.add_development_dependency "rspec", "~> 3.7"
   spec.add_development_dependency "rubocop", "0.54"
-  spec.add_development_dependency "timecop", "~> 0.9"
   spec.add_development_dependency "simplecov", "~> 0.16.1"
+  spec.add_development_dependency "timecop", "~> 0.9"
 
   spec.add_dependency "activesupport", ">= 5.1.4"
   spec.add_dependency "celluloid-io", ">= 0.17.3"
