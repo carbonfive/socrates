@@ -114,6 +114,14 @@ RSpec.describe Socrates::Core::Dispatcher do
           expect(dispatcher.conversation_state(user).state_id).to eq :ask_for_name
         end
 
+        it "should do something" do
+          pending "this needs to be implmented"
+        end
+
+        it "should do something2" do
+          pending "this needs to be implmented"
+        end
+
         it "runs the :ask action and sends the corresponding outputs to the target user" do
           dispatcher.start_conversation(user, :ask_for_name)
 
