@@ -30,7 +30,25 @@ module Socrates
           @dispatcher.dispatch(data.text, context: data)
         end
 
-        @slack_client.start!
+        @slack_client.start_async
+
+        ping = Ping.new
+        loop do
+          sleep 60
+          next if ping.alive?
+
+          alert "Slack RTC has gone offline; restarting it"
+          @slack_client.stop! if @slack_client.started?
+          sleep 1 # give the websocket a chance to completely disconnect
+          @slack_client.start_async
+        end
+      end
+
+      private
+
+      def alert(message)
+        Socrates.config.logger.warn(message)
+        Socrates.config.warn_handler.call(message)
       end
     end
   end
