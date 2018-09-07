@@ -17,7 +17,8 @@ module Socrates
     attr_accessor :error_message
     attr_accessor :expired_timeout # seconds
     attr_accessor :logger
-    attr_accessor :error_handler   # a callable proc
+    attr_accessor :error_handler   # a callable like ->(String, Exception) { ... }
+    attr_accessor :warn_handler    # a callable like ->(String) { ... }
 
     def initialize
       @storage         = Storage::Memory.new
@@ -25,6 +26,7 @@ module Socrates
       @expired_timeout = 30.minutes
       @logger          = Socrates::Logger.default
       @error_handler   = proc { |_message, _error| }
+      @warn_handler    = proc { |_message| }
     end
   end
 end
