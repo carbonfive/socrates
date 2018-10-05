@@ -11,7 +11,6 @@ jobs:
       # Restore bundle cache, with fallbacks to increase the likeliness of a cache hit
       - restore_cache:
           keys:
-            - gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
             - gem-cache-{{ arch }}-{{ .Branch }}
             - gem-cache
 
