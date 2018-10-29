@@ -13,10 +13,12 @@ module Socrates
       def client_id_from(context: nil, user: nil)
         unless context.nil?
           raise ArgumentError, "Expected context to respond to :user" unless context.respond_to?(:user)
+
           return context.user
         end
         unless user.nil?
           raise ArgumentError, "Expected user to respond to :id" unless user.respond_to?(:id)
+
           return user.id
         end
         raise ArgumentError, "Must provide one of context or user"
@@ -25,6 +27,7 @@ module Socrates
       def channel_from(context: nil, user: nil)
         unless context.nil?
           raise ArgumentError, "Expected context to respond to :channel" unless context.respond_to?(:channel)
+
           return context.channel
         end
         return lookup_dm_channel(user) unless user.nil?
