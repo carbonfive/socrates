@@ -19,6 +19,7 @@ module Socrates
     attr_accessor :logger
     attr_accessor :error_handler   # a callable like ->(String, Exception) { ... }
     attr_accessor :warn_handler    # a callable like ->(String) { ... }
+    attr_accessor :event_handler   # a callable like ->(Session, Event, Data) { ... }
 
     def initialize
       @storage         = Storage::Memory.new
@@ -27,6 +28,7 @@ module Socrates
       @logger          = Socrates::Logger.default
       @error_handler   = proc { |_message, _error| }
       @warn_handler    = proc { |_message| }
+      @event_handler   = proc { |_session, _event, _data| }
     end
   end
 end
