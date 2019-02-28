@@ -4,7 +4,7 @@ Socrates is a micro-framework for building stateful conversational interfaces. I
  
  It's designed for building conversational Slack bots, but is designed in such a way that other adapters could be written. It ships with a Console adapter for testing locally in the terminal as well as a Memory adapter for use in automated tests.
 
-*Disclaimer: This framework is currently experimental and will change.*
+*Disclaimer: This framework is still in its early stages. It's been used for one production bot for the last year or so, but might see some changes as other folks use it and provide feedback.*
 
 Conceptually, a conversation is a sequence of asking and listening actions. As a conversation progresses, information is gathered and at some point, acted upon by the system.
 
