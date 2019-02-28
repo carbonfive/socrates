@@ -28,7 +28,9 @@ module Socrates
       @logger          = Socrates::Logger.default
       @error_handler   = proc { |_message, _error| }
       @warn_handler    = proc { |_message| }
-      @event_handler   = proc { |_session, _event, _data| }
+      @event_handler   = proc { |_session, event, data|
+        puts ">>> #{event}: #{data.inspect}"
+      }
     end
   end
 end
