@@ -4,7 +4,7 @@ jobs:
     parallelism: 1
     working_directory: ~/socrates
     docker:
-      - image: circleci/ruby:2.6.1
+      - image: circleci/ruby:2.6.2
     steps:
       - checkout
 
@@ -15,7 +15,10 @@ jobs:
             - gem-cache
 
       # Bundle install dependencies and remove any unused gems
-      - run: bundle install --path vendor/bundle --jobs=4 && bundle clean --force
+      - run:
+          command: |
+            gem install bundler
+            bundle install --path vendor/bundle --jobs=4 && bundle clean --force
 
       # Store bundle cache
       - save_cache:
