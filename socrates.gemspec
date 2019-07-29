@@ -35,5 +35,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "async-websocket", "~> 0.8.0"
   spec.add_dependency "hashie", ">= 3.6"
   spec.add_dependency "redis", ">= 4.1"
-  spec.add_dependency "slack-ruby-client", ">= 0.14.1"
+  spec.add_dependency "slack-ruby-client", ">= 0.14.4"
 end
