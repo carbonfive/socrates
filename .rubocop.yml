@@ -4,5 +4,5 @@ inherit_from:
 AllCops:
   TargetRubyVersion: 2.4
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   Enabled: false
