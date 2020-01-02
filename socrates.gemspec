@@ -12,6 +12,7 @@ Gem::Specification.new do |spec|
 
   spec.summary  = "A micro-framework for building stateful conversational bots."
   spec.homepage = "https://github.com/carbonfive/socrates"
+  spec.metadata = { "source_code_uri" => "https://github.com/carbonfive/socrates" }
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
