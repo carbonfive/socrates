@@ -12,7 +12,7 @@ module StringHelpers
   # Lifted from Rails' text helpers.
   def self.pluralize(count, singular, plural_arg = nil, plural: plural_arg)
     word =
-      if count == 1 || count =~ /^1(\.0+)?$/
+      if count == 1 || count.to_s =~ /^1(\.0+)?$/
         singular
       else
         plural || singular.pluralize
