@@ -87,6 +87,15 @@ Style/EmptyMethod:
 Style/FrozenStringLiteralComment:
   EnforcedStyle: never
 
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
+
 Style/Lambda:
   EnforcedStyle: literal
 
