@@ -33,12 +33,21 @@ Layout/LineLength:
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
 Lint/AmbiguousBlockAssociation:
   Enabled: false
+
+Lint/RaiseException:
+  Enabled: true
 
 Lint/ScriptPermission:
   Exclude:
     - "Rakefile"
+
+Lint/StructNewOverride:
+  Enabled: true
 
 Metrics/AbcSize:
   Max: 35
@@ -83,6 +92,9 @@ Style/Documentation:
 
 Style/EmptyMethod:
   EnforcedStyle: expanded
+
+Style/ExponentialNotation:
+  Enabled: true
 
 Style/FrozenStringLiteralComment:
   EnforcedStyle: never
