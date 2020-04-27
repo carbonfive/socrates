@@ -3,6 +3,9 @@ require "socrates/adapters/stubs"
 module Socrates
   module Adapters
     module Adapter
+      # Many of the methods in the Adapter module serve as an interface for Adapter implementations to
+      # implement. We want to serve as an example, even if we don't provide implementations here.
+
       def client_id_from(context: nil, user: nil)
         raise NotImplementedError
       end
