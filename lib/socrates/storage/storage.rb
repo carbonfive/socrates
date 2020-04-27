@@ -32,8 +32,6 @@ module Socrates
         client_id
       end
 
-      # rubocop:disable Lint/UnusedMethodArgument
-
       def has_key?(key)
         raise NotImplementedError
       end
@@ -53,8 +51,6 @@ module Socrates
       def clear_all
         raise NotImplementedError
       end
-
-      # rubocop:enable Lint/UnusedMethodArgument
     end
   end
 end

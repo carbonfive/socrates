@@ -3,11 +3,6 @@ require "socrates/adapters/stubs"
 module Socrates
   module Adapters
     module Adapter
-      # Many of the methods in the Adapter module serve as an interface for Adapter implementations to
-      # implement. We want to serve as an example, even if we don't provide implementations here. Therefor,
-      # we're disabling this cop to avoid its warnings.
-      # rubocop:disable Lint/UnusedMethodArgument
-
       def client_id_from(context: nil, user: nil)
         raise NotImplementedError
       end
@@ -59,8 +54,6 @@ module Socrates
       def lookup_email(*)
         raise NotImplementedError
       end
-
-      # rubocop:enable Lint/UnusedMethodArgument
     end
   end
 end
