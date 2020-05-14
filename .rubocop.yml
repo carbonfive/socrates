@@ -21,6 +21,9 @@ AllCops:
 Layout/CaseIndentation:
   Enabled: false
 
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: true
+
 Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
@@ -118,6 +121,9 @@ Style/MutableConstant:
   Enabled: false
 
 Style/PreferredHashMethods:
+  Enabled: false
+
+Style/SlicingWithRange:
   Enabled: false
 
 Style/StringLiterals:
