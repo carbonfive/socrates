@@ -4,6 +4,7 @@ require:
 AllCops:
   DisplayCopNames: true
   DisplayStyleGuide: true
+  NewCops: enable
   TargetRubyVersion: 2.4
   Exclude:
     - "bin/*"
@@ -21,36 +22,21 @@ AllCops:
 Layout/CaseIndentation:
   Enabled: false
 
-Layout/EmptyLinesAroundAttributeAccessor:
-  Enabled: true
-
 Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
 Layout/HashAlignment:
   Enabled: false
 
-Layout/LineLength:
-  Max: 120
-
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
-
-Layout/SpaceAroundMethodCallOperator:
-  Enabled: true
 
 Lint/AmbiguousBlockAssociation:
   Enabled: false
 
-Lint/RaiseException:
-  Enabled: true
-
 Lint/ScriptPermission:
   Exclude:
     - "Rakefile"
-
-Lint/StructNewOverride:
-  Enabled: true
 
 Metrics/AbcSize:
   Max: 35
@@ -84,6 +70,9 @@ Performance/Casecmp:
 Security/YAMLLoad:
   Enabled: false
 
+Style/AccessorGrouping:
+  Enabled: false
+
 Style/BarePercentLiterals:
   EnforcedStyle: percent_q
 
@@ -96,20 +85,8 @@ Style/Documentation:
 Style/EmptyMethod:
   EnforcedStyle: expanded
 
-Style/ExponentialNotation:
-  Enabled: true
-
 Style/FrozenStringLiteralComment:
   EnforcedStyle: never
-
-Style/HashEachMethods:
-  Enabled: true
-
-Style/HashTransformKeys:
-  Enabled: true
-
-Style/HashTransformValues:
-  Enabled: true
 
 Style/Lambda:
   EnforcedStyle: literal
@@ -131,6 +108,3 @@ Style/StringLiterals:
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
-
-Style/StructInheritance:
-  Enabled: true
