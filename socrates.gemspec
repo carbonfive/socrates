@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 2.1.2"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.8"
-  spec.add_development_dependency "rubocop", "= 0.88.0"
+  spec.add_development_dependency "rubocop", "= 0.89.0"
   spec.add_development_dependency "rubocop-performance", "= 1.7.0"
   spec.add_development_dependency "simplecov", "~> 0.16"
   spec.add_development_dependency "timecop", "~> 0.9"
