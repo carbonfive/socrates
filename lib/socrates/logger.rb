@@ -4,7 +4,7 @@ module Socrates
   class Logger < ::Logger
     def self.default
       @default ||= begin
-        logger       = new(STDOUT)
+        logger       = new($stdout)
         logger.level = Logger::WARN
         logger
       end
