@@ -3,7 +3,7 @@ module Socrates
     class Slack
       class Ping
         def initialize
-          logger = Logger.new(STDOUT)
+          logger = Logger.new($stdout)
           # The ping is going to run every minute, so don't be too chatty
           logger.level = Logger::WARN
 

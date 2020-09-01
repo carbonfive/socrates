@@ -9,7 +9,7 @@ module Socrates
       def initialize(state_factory:)
         ::Slack.configure do |config|
           config.token        = ENV["SLACK_API_TOKEN"]
-          config.logger       = Logger.new(STDOUT)
+          config.logger       = Logger.new($stdout)
           config.logger.level = Logger::INFO
 
           raise "Missing ENV['SLACK_API_TOKEN']!" unless config.token
