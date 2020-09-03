@@ -11,7 +11,7 @@ module Socrates
     module State
       attr_reader :data, :adapter, :session, :user
 
-      def initialize(data: StateData.new, adapter:, session:)
+      def initialize(adapter:, session:, data: StateData.new)
         @data              = data
         @adapter           = adapter
         @session           = session
