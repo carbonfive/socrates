@@ -20,6 +20,7 @@ module Socrates
         @logger        = Socrates.config.logger
         @error_handler = Socrates.config.error_handler
         @error_message = Socrates.config.error_message || DEFAULT_ERROR_MESSAGE
+        @event_handler = Socrates.config.event_handler
       end
 
       def dispatch(message, context: {})
@@ -48,6 +49,8 @@ module Socrates
 
         # Send our initial message if one was passed to us.
         @adapter.queue_direct_message(session, message, user) if message.present?
+
+        @event_handler.call(session, :start_conversation, state: state_id, msg: message)
 
         do_dispatch(session, nil)
         true
@@ -93,6 +96,8 @@ module Socrates
             handle_action_error(e, session, state)
             return
           end
+
+          @event_handler.call(session, :transition, msg: message, from: state.data.state_id, to: state.next_state_id)
 
           # Update the persisted state data so we know what to run next time.
           state.data.state_id     = state.next_state_id
