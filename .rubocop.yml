@@ -8,5 +8,8 @@ inherit_from:
 AllCops:
   TargetRubyVersion: 2.4 # this must match gemspec required_ruby_version
 
+Naming/VariableNumber:
+  Enabled: false
+
 Style/AccessorGrouping:
   Enabled: false
