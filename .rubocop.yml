@@ -6,7 +6,7 @@ inherit_from:
   - https://raw.githubusercontent.com/carbonfive/c5-conventions/main/rubocop/.rubocop-performance.yml
 
 AllCops:
-  TargetRubyVersion: 2.4 # this must match gemspec required_ruby_version
+  TargetRubyVersion: 2.5 # this must match gemspec required_ruby_version
 
 Naming/VariableNumber:
   Enabled: false

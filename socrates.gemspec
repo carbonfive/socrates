@@ -22,19 +22,19 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = ">= 2.4.0"
+  spec.required_ruby_version = ">= 2.5.0"
 
   spec.add_development_dependency "bundler", "~> 2.2"
   spec.add_development_dependency "rake", "~> 13.0"
-  spec.add_development_dependency "rspec", "~> 3.8"
+  spec.add_development_dependency "rspec", "~> 3.10"
   spec.add_development_dependency "rubocop", "= 1.8.1"
   spec.add_development_dependency "rubocop-performance", "= 1.9.2"
   spec.add_development_dependency "simplecov", "~> 0.16"
   spec.add_development_dependency "timecop", "~> 0.9"
 
   spec.add_dependency "activesupport", ">= 5.2"
-  spec.add_dependency "async-websocket", ">= 0.8", "< 0.17"
+  spec.add_dependency "async-websocket", ">= 0.16"
   spec.add_dependency "hashie", ">= 3.6"
-  spec.add_dependency "redis", ">= 4.1"
-  spec.add_dependency "slack-ruby-client", ">= 0.14.4"
+  spec.add_dependency "redis", ">= 4.2.5"
+  spec.add_dependency "slack-ruby-client", ">= 0.15.1"
 end
