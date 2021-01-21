@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "timecop", "~> 0.9"
 
   spec.add_dependency "activesupport", ">= 5.2"
-  spec.add_dependency "async-websocket", "~> 0.8.0"
+  spec.add_dependency "async-websocket", ">= 0.8", "< 0.17"
   spec.add_dependency "hashie", ">= 3.6"
   spec.add_dependency "redis", ">= 4.2.5"
   spec.add_dependency "slack-ruby-client", ">= 0.15.1"
