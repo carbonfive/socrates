@@ -73,7 +73,7 @@ module Socrates
         return im if im.present?
 
         # Start a new conversation with this user.
-        response = @real_time_client.web_client.conversations_open(user: user.id)
+        response = @real_time_client.web_client.conversations_open(users: user.id)
         response.channel.id
       end
     end
