@@ -12,7 +12,7 @@ module Socrates
       end
 
       def has_key?(key)
-        @redis.exists(key)
+        @redis.exists?(key)
       end
 
       def clear(key)
