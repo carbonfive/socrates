@@ -4,7 +4,7 @@ jobs:
     parallelism: 1
     working_directory: ~/socrates
     docker:
-      - image: circleci/ruby:3.0.1
+      - image: circleci/ruby:3.0.2
     steps:
       - checkout
 
