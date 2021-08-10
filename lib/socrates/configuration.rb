@@ -25,8 +25,8 @@ module Socrates
       @error_message   = "Sorry, something went wrong. We'll have to start over..."
       @expired_timeout = 30.minutes
       @logger          = Socrates::Logger.default
-      @error_handler   = proc { |_message, _error| } # rubocop:disable Lint/EmptyBlock
-      @warn_handler    = proc { |_message| } # rubocop:disable Lint/EmptyBlock
+      @error_handler   = proc { |_message, _error| }
+      @warn_handler    = proc { |_message| }
     end
   end
 end
