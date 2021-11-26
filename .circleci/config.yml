@@ -9,9 +9,11 @@ jobs:
       - image: cimg/ruby:3.0.2
     steps:
       - checkout
-      - ruby/install-deps:
-          bundler-version: 2.2.32
-          with-cache: false
+      - run:
+          command: |
+            gem install bundler
+            bundle config set path .vendor/bundle
+            bundle install --jobs=4 && bundle clean --force
       - ruby/rubocop-check
       - ruby/rspec-test
       - store_artifacts: # Save the test logs for debugging
